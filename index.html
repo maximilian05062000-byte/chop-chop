@@ -1645,11 +1645,13 @@
                 showToast('Запрос успешно добавлен!');
                 hideForms();
                 if (onSuccess) onSuccess();
-
                 // Send push notification via ntfy.sh
                 try {
                     await sendRequestNotification(newRequest);
-                    newRequest.notificationStatus = 'sent';
+                    const reqInList = requestsData.find(r => r.id === newRequest.id);
+                    if (reqInList) {
+                        reqInList.notificationStatus = 'sent';
+                    }
                     await saveRequestsToServer();
                 } catch (err) {
                     console.error('Error sending notification:', err);
