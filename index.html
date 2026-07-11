@@ -122,6 +122,8 @@
             height: 100%;
             filter: drop-shadow(0 8px 20px rgba(168, 85, 247, 0.25));
             transition: filter 0.3s ease, transform 0.3s ease;
+            will-change: transform, filter;
+            transform: translateZ(0); /* Fixes Safari white SVG rendering glitch */
         }
 
         .card-container:hover .baton-svg {
@@ -1109,7 +1111,10 @@
                 if (response.ok) {
                     if (expectedVersion === localVersion && !isSaving) {
                         const data = await response.json();
-                        const serverRequests = (data.record && data.record.requests) ? data.record.requests : [];
+                        if (data.error || !data.record || !Array.isArray(data.record.requests)) {
+                            throw new Error(data.error || 'Неверная структура данных от сервера');
+                        }
+                        const serverRequests = data.record.requests;
                         
                         // Merge local pending requests
                         const pendingLocal = requestsData.filter(r => r.syncStatus === 'pending' && !serverRequests.some(sr => sr.id === r.id));
@@ -1212,6 +1217,11 @@
                 if (!response.ok) {
                     const errorText = await response.text();
                     throw new Error(`Server returned status ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error);
                 }
                 
                 // On success, update our memory array to synced
