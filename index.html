@@ -1015,12 +1015,22 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             checkAdminMode();
+            
+            // Instantly render UI from localStorage fallback (0ms latency)
+            fallbackLoad();
+            applyCatStatus();
+            updateMoodUI();
+            if (isAdmin) {
+                updateAdminStatusButtons();
+            }
+            renderRequests();
+            
             loadRequests();
             startPolling();
+            
             // Trigger sync if there are unsaved local items in fallback
             const localFallback = getLocalStorageFallback();
             if (localFallback.some(r => r.syncStatus === 'pending' || r.notificationStatus === 'pending')) {
-                requestsData = localFallback;
                 triggerBackgroundSync();
             }
         });
