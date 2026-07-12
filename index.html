@@ -702,6 +702,95 @@
         .state-peeking #rightEyePeek {
             display: block;
         }
+
+        /* TV Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 200;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: rgba(25, 27, 38, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(168, 85, 247, 0.15);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-close {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        .video-container {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 16/9;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .video-player {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .modal-caption {
+            margin-top: 14px;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -718,6 +807,14 @@
                 <button class="status-sel-btn" id="statusBtn-normal" onclick="setAdminCatStatus('normal')">🟢 Активен</button>
                 <button class="status-sel-btn" id="statusBtn-working" onclick="setAdminCatStatus('working')">💼 Работает</button>
                 <button class="status-sel-btn" id="statusBtn-sleeping" onclick="setAdminCatStatus('sleeping')">💤 Спит</button>
+            </div>
+            <!-- TV custom message input -->
+            <div style="margin-top: 12px; border-top: 1px dashed rgba(239, 68, 68, 0.2); padding-top: 10px; text-align: left;">
+                <label for="adminTvMessage" style="color: #f87171; font-size: 10px; margin-bottom: 6px; display: block;">Пожелание дня (вместо заглушки):</label>
+                <div style="display: flex; gap: 6px;">
+                    <input type="text" id="adminTvMessage" placeholder="Например: Хорошего дня! ❤️" style="flex: 1; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 6px 10px; color: white; font-size: 11px; outline: none;">
+                    <button class="admin-btn" onclick="saveTvMessage()" style="background: #a855f7; white-space: nowrap;">Сохранить</button>
+                </div>
             </div>
         </div>
 
@@ -828,6 +925,12 @@
             <button class="action-btn" onclick="showForm('gift')">
                 <span class="btn-icon">🎁</span>
                 <span>Хочу подарок</span>
+            </button>
+
+            <!-- 4. Chop-Chopa TV -->
+            <button class="action-btn" onclick="showTV()">
+                <span class="btn-icon">📺</span>
+                <span>Телевизор Чоп-Чопы</span>
             </button>
         </div>
 
@@ -949,6 +1052,20 @@
         </div>
     </div>
 
+    <!-- TV Modal -->
+    <div class="modal-overlay" id="tvModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Телевизор Чоп-Чопы 📺</span>
+                <button class="modal-close" onclick="closeTV()">×</button>
+            </div>
+            <div class="video-container" id="tvVideoContainer">
+                <video id="tvVideo" class="video-player" controls playsinline></video>
+            </div>
+            <div class="modal-caption" id="tvCaption">Загрузка передачи...</div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div class="notification-toast" id="toast">Запрос сохранен!</div>
 
@@ -1056,6 +1173,8 @@
             if (isAdmin) {
                 adminHeader.style.display = 'block';
                 updateAdminStatusButtons();
+                const tvInput = document.getElementById('adminTvMessage');
+                if (tvInput) tvInput.value = tvMessage;
             } else {
                 adminHeader.style.display = 'none';
             }
@@ -1103,6 +1222,7 @@
         let catStatus = 'normal'; // 'normal', 'sleeping', 'working'
         let catMood = 80;
         let lastInteractionTime = Date.now();
+        let tvMessage = '';
 
         function getLocalStorageFallback() {
             try {
@@ -1131,6 +1251,7 @@
                         requestsData = [...serverRequests, ...pendingLocal];
                         
                         catStatus = (data.record && data.record.catStatus) ? data.record.catStatus : 'normal';
+                        tvMessage = (data.record && data.record.tvMessage) ? data.record.tvMessage : '';
                         
                         const dbMood = (data.record && typeof data.record.catMood === 'number') ? data.record.catMood : 80;
                         const dbInteractionTime = (data.record && typeof data.record.lastInteractionTime === 'number') 
@@ -1146,11 +1267,14 @@
                         localStorage.setItem('cat_status_fallback', catStatus);
                         localStorage.setItem('cat_mood_fallback', catMood);
                         localStorage.setItem('cat_last_interaction_fallback', lastInteractionTime);
+                        localStorage.setItem('tv_message_fallback', tvMessage);
                         
                         applyCatStatus();
                         updateMoodUI();
                         if (isAdmin) {
                             updateAdminStatusButtons();
+                            const tvInput = document.getElementById('adminTvMessage');
+                            if (tvInput) tvInput.value = tvMessage;
                         }
                         renderRequests();
 
@@ -1189,6 +1313,7 @@
             catStatus = localStorage.getItem('cat_status_fallback') || 'normal';
             catMood = parseInt(localStorage.getItem('cat_mood_fallback') || '80', 10);
             lastInteractionTime = parseInt(localStorage.getItem('cat_last_interaction_fallback') || Date.now().toString(), 10);
+            tvMessage = localStorage.getItem('tv_message_fallback') || '';
             
             const hoursPassed = (Date.now() - lastInteractionTime) / (1000 * 60 * 60);
             catMood = Math.max(10, Math.round(catMood - hoursPassed * 1));
@@ -1213,6 +1338,7 @@
             localStorage.setItem('cat_status_fallback', catStatus);
             localStorage.setItem('cat_mood_fallback', catMood);
             localStorage.setItem('cat_last_interaction_fallback', lastInteractionTime);
+            localStorage.setItem('tv_message_fallback', tvMessage);
             
             try {
                 const response = await fetch(`${PROXY_URL}?path=db`, {
@@ -1224,7 +1350,8 @@
                         requests: payloadRequests,
                         catStatus: catStatus,
                         catMood: catMood,
-                        lastInteractionTime: lastInteractionTime
+                        lastInteractionTime: lastInteractionTime,
+                        tvMessage: tvMessage
                     })
                 });
                 if (!response.ok) {
@@ -1789,6 +1916,104 @@
                 document.getElementById('gift-specific-time').value = '';
             });
         }
+
+        // --- Chop-Chopa TV Functions ---
+        async function checkVideoExists(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                return response.ok;
+            } catch (err) {
+                // If HEAD is blocked or fails due to network, let browser try
+                return true;
+            }
+        }
+
+        async function showTV() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            
+            const yearDateStr = `${year}-${month}-${day}`;
+            const monthDayStr = `${day}-${month}`;
+            
+            const pathsToTry = [
+                `videos/${yearDateStr}.mp4`,
+                `videos/${monthDayStr}.mp4`,
+                `videos/default.mp4`
+            ];
+            
+            let selectedPath = null;
+            for (const path of pathsToTry) {
+                const exists = await checkVideoExists(path);
+                if (exists) {
+                    selectedPath = path;
+                    break;
+                }
+            }
+            
+            const modal = document.getElementById('tvModal');
+            const video = document.getElementById('tvVideo');
+            const videoContainer = document.getElementById('tvVideoContainer');
+            const caption = document.getElementById('tvCaption');
+            
+            if (selectedPath) {
+                if (videoContainer) videoContainer.style.display = 'block';
+                video.src = selectedPath;
+                caption.innerText = `Передача на сегодня (${day}.${month}.${year}) 📺✨`;
+                modal.classList.add('active');
+                video.play().catch(err => console.log("Auto-play prevented:", err));
+            } else {
+                if (videoContainer) videoContainer.style.display = 'none';
+                video.src = '';
+                if (tvMessage) {
+                    caption.innerHTML = `<div style="font-size: 15px; font-weight: 700; color: #f472b6; margin-bottom: 5px;">Пожелание дня от Чоп-Чопы:</div><div style="font-size: 14px; line-height: 1.5; color: var(--text-color); padding: 16px; background: rgba(255, 255, 255, 0.03); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05); margin-top: 10px; white-space: pre-wrap; font-style: italic;">« ${tvMessage} »</div>`;
+                } else {
+                    caption.innerText = 'Чоп-Чопа еще не загрузил сегодняшнюю передачу! 📺😴 Загляните позже!';
+                }
+                modal.classList.add('active');
+            }
+        }
+
+        function closeTV() {
+            const modal = document.getElementById('tvModal');
+            const video = document.getElementById('tvVideo');
+            const videoContainer = document.getElementById('tvVideoContainer');
+            if (video) {
+                video.pause();
+                video.src = '';
+            }
+            if (videoContainer) {
+                videoContainer.style.display = 'block';
+            }
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        async function saveTvMessage() {
+            if (isSaving) return;
+            const input = document.getElementById('adminTvMessage');
+            if (!input) return;
+            const oldMessage = tvMessage;
+            tvMessage = input.value.trim();
+            
+            try {
+                await saveRequestsToServer();
+                showToast('Пожелание сохранено! ❤️');
+            } catch (err) {
+                console.error('Error saving TV message:', err);
+                tvMessage = oldMessage;
+                showToast('Ошибка сохранения пожелания!');
+            }
+        }
+
+        // Close modal when clicking outside content area
+        document.getElementById('tvModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('tvModal')) {
+                closeTV();
+            }
+        });
     </script>
 
     <!-- Yandex.Metrika counter -->
