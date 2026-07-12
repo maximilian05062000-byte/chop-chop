@@ -1971,7 +1971,11 @@
             if (selectedPath) {
                 if (videoContainer) videoContainer.style.display = 'block';
                 video.src = selectedPath;
-                caption.innerText = `Передача на сегодня (${day}.${month}.${year}) 📺✨`;
+                if (tvMessage) {
+                    caption.innerHTML = `<div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Передача на сегодня (${day}.${month}.${year}) 📺✨</div><div style="font-size: 13px; line-height: 1.4; color: var(--text-color); margin-top: 8px; font-style: italic; white-space: pre-wrap;">« ${tvMessage} »</div>`;
+                } else {
+                    caption.innerText = `Передача на сегодня (${day}.${month}.${year}) 📺✨`;
+                }
                 modal.classList.add('active');
                 video.play().catch(err => console.log("Auto-play prevented:", err));
             } else {
