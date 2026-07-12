@@ -1197,6 +1197,9 @@
         async function saveRequestsToServer() {
             isSaving = true;
             
+            // Update lastInteractionTime to Date.now() so that the saved catMood corresponds to this timestamp
+            lastInteractionTime = Date.now();
+            
             // Mark all pending as synced for the server payload
             const payloadRequests = requestsData.map(r => {
                 if (r.syncStatus === 'pending') {
@@ -1641,6 +1644,10 @@
         async function addRequest(icon, title, details, onSuccess) {
             // Trigger jump animation without breaking sleep state
             triggerCatAnimation('anim-bounce');
+
+            // Satiety/Happiness decreases by 5% for each new request
+            catMood = Math.max(10, catMood - 5);
+            updateMoodUI();
 
             const newRequest = {
                 id: 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
