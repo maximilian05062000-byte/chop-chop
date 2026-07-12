@@ -1925,10 +1925,17 @@
         async function checkVideoExists(url) {
             try {
                 const response = await fetch(url, { method: 'HEAD' });
-                return response.ok;
-            } catch (err) {
-                // If HEAD is blocked or fails due to network, let browser try
+                if (!response.ok) return false;
+                
+                // If the server returned an HTML page (like a 404 redirect), it's not a video
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.toLowerCase().includes('text/html')) {
+                    return false;
+                }
                 return true;
+            } catch (err) {
+                // Return false on network/CORS error (safest for local testing and file:// protocol)
+                return false;
             }
         }
 
