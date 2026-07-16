@@ -989,6 +989,165 @@
             justify-content: center;
             gap: 6px;
         }
+
+        /* --- Shop CSS Styles --- */
+        .shop-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        .shop-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-glow), transparent);
+        }
+        .shop-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .shop-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #f3f4f6;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .coin-balance {
+            font-size: 12px;
+            font-weight: 800;
+            color: #facc15;
+            background: rgba(250, 204, 21, 0.1);
+            border: 1px solid rgba(250, 204, 21, 0.2);
+            border-radius: 20px;
+            padding: 4px 10px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 0 10px rgba(250, 204, 21, 0.1);
+        }
+        .shop-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+        .shop-tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        .shop-tab-btn.active {
+            color: #f3f4f6;
+            background: rgba(168, 85, 247, 0.15);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+        }
+        .shop-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        @media (min-width: 480px) {
+            .shop-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .shop-card {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .shop-card:hover {
+            border-color: rgba(168, 85, 247, 0.3);
+            background: rgba(168, 85, 247, 0.02);
+        }
+        .shop-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+        .shop-card-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #f3f4f6;
+        }
+        .shop-card-desc {
+            font-size: 9px;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+        .shop-card-cost {
+            font-size: 11px;
+            font-weight: 800;
+            color: #facc15;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            margin-top: 4px;
+        }
+        .shop-card-btn {
+            width: 100%;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(236, 72, 153, 0.05) 100%);
+            color: white;
+            padding: 6px 0;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .shop-card-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.35) 0%, rgba(236, 72, 153, 0.15) 100%);
+            transform: translateY(-1px);
+        }
+        .shop-card-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: var(--border-color);
+            background: transparent;
+            color: var(--text-muted);
+        }
+        .shop-card-btn.equipped {
+            border-color: rgba(34, 197, 94, 0.4);
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+        }
+        .shop-card-btn.equipped:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #f87171;
+        }
+        .shop-card-btn.equipped:hover span::after {
+            content: ' (Снять)';
+        }
     </style>
 </head>
 <body>
@@ -1020,6 +1179,7 @@
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <input type="text" id="adminQuestText" placeholder="Что нужно сделать (квест)?" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 6px 10px; color: white; font-size: 11px; outline: none;">
                     <input type="text" id="adminRewardText" placeholder="Что Люба получит (награда)?" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 6px 10px; color: white; font-size: 11px; outline: none;">
+                    <input type="number" id="adminQuestCoins" placeholder="Награда в монетках (по умолчанию 15)?" min="0" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 6px 10px; color: white; font-size: 11px; outline: none;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
                         <span id="adminQuestStatus" style="font-size: 10px; color: #f87171; font-weight: bold;">Статус: Загрузка...</span>
                         <div style="display: flex; gap: 6px;">
@@ -1101,6 +1261,36 @@
                         <!-- Safety Cross Badge -->
                         <circle cx="110" cy="38" r="5" fill="#ffffff" />
                         <path d="M 107.5 38 L 112.5 38 M 110 35.5 L 110 40.5" stroke="#ea580c" stroke-width="1.5" />
+                    </g>
+                    <!-- Accessories for Shop -->
+                    <g id="acc-bowtie" style="display: none;">
+                        <polygon points="110,122 92,112 92,132" fill="#ec4899" stroke="#db2777" stroke-width="2" />
+                        <polygon points="110,122 128,112 128,132" fill="#ec4899" stroke="#db2777" stroke-width="2" />
+                        <circle cx="110" cy="122" r="7.5" fill="#db2777" />
+                    </g>
+                    <g id="acc-sunglasses" style="display: none;">
+                        <ellipse cx="65" cy="95" rx="22" ry="14" fill="#111" stroke="#374151" stroke-width="2" />
+                        <path d="M 50 90 L 62 90" stroke="#fff" stroke-width="2.5" stroke-linecap="round" />
+                        <ellipse cx="155" cy="95" rx="22" ry="14" fill="#111" stroke="#374151" stroke-width="2" />
+                        <path d="M 140 90 L 152 90" stroke="#fff" stroke-width="2.5" stroke-linecap="round" />
+                        <path d="M 87 92 Q 110 84 133 92" stroke="#111" stroke-width="4.5" stroke-linecap="round" fill="none" />
+                        <path d="M 43 95 C 33 95 28 85 28 85" stroke="#111" stroke-width="3" stroke-linecap="round" fill="none" />
+                        <path d="M 177 95 C 187 95 192 85 192 85" stroke="#111" stroke-width="3" stroke-linecap="round" fill="none" />
+                    </g>
+                    <g id="acc-chain" style="display: none;">
+                        <path d="M 72 122 Q 110 148 148 122" stroke="#fbbf24" stroke-width="5" stroke-linecap="round" fill="none" />
+                        <path d="M 72 122 Q 110 148 148 122" stroke="#d97706" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="4 4" />
+                        <circle cx="110" cy="140" r="9" fill="#fbbf24" stroke="#d97706" stroke-width="1.5" />
+                        <path d="M 107.5 137.5 L 112.5 142.5 M 112.5 137.5 L 107.5 142.5" stroke="#d97706" stroke-width="1.5" stroke-linecap="round" />
+                    </g>
+                    <g id="acc-crown" style="display: none;">
+                        <path d="M 75 52 Q 110 47 145 52 L 140 32 L 123 44 L 110 20 L 97 44 L 80 32 Z" fill="#fbbf24" stroke="#d97706" stroke-width="2" stroke-linejoin="round" />
+                        <circle cx="80" cy="30" r="3" fill="#ef4444" />
+                        <circle cx="110" cy="18" r="3.5" fill="#3b82f6" />
+                        <circle cx="140" cy="30" r="3" fill="#ef4444" />
+                        <circle cx="95" cy="46" r="2" fill="#10b981" />
+                        <circle cx="110" cy="44" r="2" fill="#ef4444" />
+                        <circle cx="125" cy="46" r="2" fill="#10b981" />
                     </g>
                 </svg>
             </div>
@@ -1256,6 +1446,9 @@
         <!-- Daily Quest Widget -->
         <div id="questContainer"></div>
 
+        <!-- Shop Widget -->
+        <div id="shopContainer" class="shop-section" style="display: none;"></div>
+
         <!-- History Checklist Section -->
         <div class="history-section">
             <div class="history-title">
@@ -1304,6 +1497,11 @@
         let dailyQuest = '';
         let dailyReward = '';
         let dailyQuestCompleted = false;
+        let coins = 0;
+        let shopPurchases = [];
+        let activeAccessory = null;
+        let dailyQuestCoins = 15;
+        let shopActiveTab = 'coupons';
         let currentPage = 1;
         const itemsPerPage = 5;
 
@@ -1364,6 +1562,7 @@
             fallbackLoad();
             applyCatStatus();
             updateMoodUI();
+            updateCatAccessoryUI();
             if (isAdmin) {
                 updateAdminStatusButtons();
                 updateAdminQuestStatusUI();
@@ -1373,6 +1572,7 @@
                 if (qReward) qReward.value = dailyReward;
             }
             renderQuestCard();
+            renderShop();
             renderRequests();
             
             loadRequests();
@@ -1484,15 +1684,29 @@
                         }
                         const serverRequests = data.record.requests;
                         
-                        // Merge local pending requests
-                        const pendingLocal = requestsData.filter(r => r.syncStatus === 'pending' && !serverRequests.some(sr => sr.id === r.id));
-                        requestsData = [...serverRequests, ...pendingLocal];
+                        // Merge any local requests not present on the server to prevent data loss
+                        const localOnly = requestsData.filter(r => r && r.id && !serverRequests.some(sr => sr.id === r.id));
+                        if (localOnly.length > 0) {
+                            localOnly.forEach(r => {
+                                r.syncStatus = 'pending';
+                            });
+                            requestsData = [...serverRequests, ...localOnly];
+                            setTimeout(() => {
+                                saveRequestsToServer();
+                            }, 500);
+                        } else {
+                            requestsData = serverRequests;
+                        }
                         
                         catStatus = (data.record && data.record.catStatus) ? data.record.catStatus : 'normal';
                         tvMessage = (data.record && data.record.tvMessage) ? data.record.tvMessage : '';
                         dailyQuest = (data.record && data.record.dailyQuest) ? data.record.dailyQuest : '';
                         dailyReward = (data.record && data.record.dailyReward) ? data.record.dailyReward : '';
                         dailyQuestCompleted = (data.record && data.record.dailyQuestCompleted) ? !!data.record.dailyQuestCompleted : false;
+                        coins = (data.record && typeof data.record.coins === 'number') ? data.record.coins : 0;
+                        shopPurchases = (data.record && Array.isArray(data.record.shopPurchases)) ? data.record.shopPurchases : [];
+                        activeAccessory = (data.record && data.record.activeAccessory) ? data.record.activeAccessory : null;
+                        dailyQuestCoins = (data.record && typeof data.record.dailyQuestCoins === 'number') ? data.record.dailyQuestCoins : 15;
                         
                         const dbMood = (data.record && typeof data.record.catMood === 'number') ? data.record.catMood : 80;
                         const dbInteractionTime = (data.record && typeof data.record.lastInteractionTime === 'number') 
@@ -1512,20 +1726,28 @@
                         localStorage.setItem('daily_quest_fallback', dailyQuest);
                         localStorage.setItem('daily_reward_fallback', dailyReward);
                         localStorage.setItem('daily_quest_completed_fallback', dailyQuestCompleted ? 'true' : 'false');
+                        localStorage.setItem('coins_fallback', coins);
+                        localStorage.setItem('shop_purchases_fallback', JSON.stringify(shopPurchases));
+                        localStorage.setItem('active_accessory_fallback', activeAccessory || '');
+                        localStorage.setItem('daily_quest_coins_fallback', dailyQuestCoins);
                         
                         applyCatStatus();
                         updateMoodUI();
+                        updateCatAccessoryUI();
                         if (isAdmin) {
                             updateAdminStatusButtons();
                             const tvInput = document.getElementById('adminTvMessage');
                             if (tvInput) tvInput.value = tvMessage;
                             const qText = document.getElementById('adminQuestText');
                             const qReward = document.getElementById('adminRewardText');
+                            const qCoins = document.getElementById('adminQuestCoins');
                             if (qText) qText.value = dailyQuest;
                             if (qReward) qReward.value = dailyReward;
+                            if (qCoins) qCoins.value = dailyQuestCoins;
                             updateAdminQuestStatusUI();
                         }
                         renderQuestCard();
+                        renderShop();
                         renderRequests();
 
                         if (pendingLocal.length > 0) {
@@ -1538,11 +1760,13 @@
                         fallbackLoad();
                         applyCatStatus();
                         updateMoodUI();
+                        updateCatAccessoryUI();
                         if (isAdmin) {
                             updateAdminStatusButtons();
                             updateAdminQuestStatusUI();
                         }
                         renderQuestCard();
+                        renderShop();
                         renderRequests();
                     }
                 }
@@ -1552,11 +1776,13 @@
                     fallbackLoad();
                     applyCatStatus();
                     updateMoodUI();
+                    updateCatAccessoryUI();
                     if (isAdmin) {
                         updateAdminStatusButtons();
                         updateAdminQuestStatusUI();
                     }
                     renderQuestCard();
+                    renderShop();
                     renderRequests();
                 }
             }
@@ -1571,6 +1797,14 @@
             dailyQuest = localStorage.getItem('daily_quest_fallback') || '';
             dailyReward = localStorage.getItem('daily_reward_fallback') || '';
             dailyQuestCompleted = localStorage.getItem('daily_quest_completed_fallback') === 'true';
+            coins = parseInt(localStorage.getItem('coins_fallback') || '0', 10);
+            try {
+                shopPurchases = JSON.parse(localStorage.getItem('shop_purchases_fallback') || '[]');
+            } catch (e) {
+                shopPurchases = [];
+            }
+            activeAccessory = localStorage.getItem('active_accessory_fallback') || null;
+            dailyQuestCoins = parseInt(localStorage.getItem('daily_quest_coins_fallback') || '15', 10);
             
             const hoursPassed = (Date.now() - lastInteractionTime) / (1000 * 60 * 60);
             catMood = Math.max(10, Math.round(catMood - hoursPassed * 1));
@@ -1599,6 +1833,10 @@
             localStorage.setItem('daily_quest_fallback', dailyQuest);
             localStorage.setItem('daily_reward_fallback', dailyReward);
             localStorage.setItem('daily_quest_completed_fallback', dailyQuestCompleted ? 'true' : 'false');
+            localStorage.setItem('coins_fallback', coins);
+            localStorage.setItem('shop_purchases_fallback', JSON.stringify(shopPurchases));
+            localStorage.setItem('active_accessory_fallback', activeAccessory || '');
+            localStorage.setItem('daily_quest_coins_fallback', dailyQuestCoins);
             
             try {
                 const response = await fetch(`${PROXY_URL}?path=db`, {
@@ -1614,7 +1852,11 @@
                         tvMessage: tvMessage,
                         dailyQuest: dailyQuest,
                         dailyReward: dailyReward,
-                        dailyQuestCompleted: dailyQuestCompleted
+                        dailyQuestCompleted: dailyQuestCompleted,
+                        coins: coins,
+                        shopPurchases: shopPurchases,
+                        activeAccessory: activeAccessory,
+                        dailyQuestCoins: dailyQuestCoins
                     })
                 });
                 if (!response.ok) {
@@ -2420,9 +2662,12 @@
             if (isSaving) return;
             const qText = document.getElementById('adminQuestText').value.trim();
             const qReward = document.getElementById('adminRewardText').value.trim();
+            const qCoinsVal = document.getElementById('adminQuestCoins').value.trim();
+            const qCoins = qCoinsVal !== '' ? Math.max(0, parseInt(qCoinsVal, 10)) : 15;
             
             const oldQuest = dailyQuest;
             const oldReward = dailyReward;
+            const oldCoins = dailyQuestCoins;
             
             // Setting a new quest text resets completion status by default
             const oldCompleted = dailyQuestCompleted;
@@ -2432,6 +2677,7 @@
             
             dailyQuest = qText;
             dailyReward = qReward;
+            dailyQuestCoins = qCoins;
             
             try {
                 await saveRequestsToServer();
@@ -2442,6 +2688,7 @@
                 console.error('Error saving quest:', err);
                 dailyQuest = oldQuest;
                 dailyReward = oldReward;
+                dailyQuestCoins = oldCoins;
                 dailyQuestCompleted = oldCompleted;
                 showToast('Не удалось сохранить квест!');
             }
@@ -2483,7 +2730,7 @@
                         </div>
                         <div class="quest-text">${dailyQuest}</div>
                         <div class="quest-reward">
-                            <span>🎁 Награда:</span> <strong>${dailyReward || 'Сюрприз!'}</strong>
+                            <span>🎁 Награда:</span> <strong>${dailyReward || 'Сюрприз!'}</strong> + 🪙 <strong>${dailyQuestCoins}</strong> монет
                         </div>
                         <div class="quest-completed-badge">
                             <span>🎉 Награда получена!</span>
@@ -2499,7 +2746,7 @@
                         </div>
                         <div class="quest-text">${dailyQuest}</div>
                         <div class="quest-reward">
-                            <span>🎁 Награда:</span> <strong>${dailyReward || 'Сюрприз!'}</strong>
+                            <span>🎁 Награда:</span> <strong>${dailyReward || 'Сюрприз!'}</strong> + 🪙 <strong>${dailyQuestCoins}</strong> монет
                         </div>
                         <button class="quest-complete-btn" onclick="completeQuest()">
                             <span>✨ Выполнить квест</span>
@@ -2513,7 +2760,11 @@
             if (isSaving || dailyQuestCompleted) return;
             
             dailyQuestCompleted = true;
+            const oldCoins = coins;
+            coins += dailyQuestCoins;
+            
             renderQuestCard();
+            renderShop();
             if (isAdmin) {
                 updateAdminQuestStatusUI();
             }
@@ -2523,12 +2774,14 @@
             
             try {
                 await saveRequestsToServer();
-                showToast('Квест выполнен! Награда разблокирована! 🎉');
+                showToast(`Квест выполнен! Получено 🪙 ${dailyQuestCoins} монет! 🎉`);
                 sendQuestCompletionNotification();
             } catch (err) {
                 console.error('Error completing quest:', err);
                 dailyQuestCompleted = false;
+                coins = oldCoins;
                 renderQuestCard();
+                renderShop();
                 if (isAdmin) {
                     updateAdminQuestStatusUI();
                 }
@@ -2547,7 +2800,7 @@
                     body: JSON.stringify({
                         topic: 'chop_chop_care_' + BIN_ID,
                         title: 'Квест дня выполнен! 🎉',
-                        message: `Люба выполнила квест дня: "${dailyQuest}"!\nНаграда: "${dailyReward || 'Сюрприз!'}"`,
+                        message: `Люба выполнила квест дня: "${dailyQuest}"!\nНаграда: "${dailyReward || 'Сюрприз!'}"\nЗаработано монет: 🪙 ${dailyQuestCoins}`,
                         tags: ['party', 'tada', 'gift', 'checkered_flag'],
                         priority: 4,
                         click: siteUrl
@@ -2587,6 +2840,252 @@
                 document.body.appendChild(p);
                 setTimeout(() => p.remove(), 1600);
             }
+        }
+
+        /* --- Shop Logic JS Methods --- */
+        function updateCatAccessoryUI() {
+            const accs = ['bowtie', 'sunglasses', 'chain', 'crown'];
+            accs.forEach(acc => {
+                const el = document.getElementById('acc-' + acc);
+                if (el) el.style.display = 'none';
+            });
+            if (activeAccessory) {
+                const el = document.getElementById('acc-' + activeAccessory);
+                if (el) el.style.display = 'block';
+            }
+        }
+
+        function changeShopTab(tabId) {
+            shopActiveTab = tabId;
+            renderShop();
+        }
+
+        async function buyShopItem(itemId, itemType, cost) {
+            if (isSaving) return;
+            if (coins < cost) {
+                showToast('Недостаточно монет! 🪙');
+                return;
+            }
+            
+            const oldCoins = coins;
+            const oldPurchases = [...shopPurchases];
+            const oldAccessory = activeAccessory;
+            
+            coins -= cost;
+            if (itemType === 'accessory') {
+                shopPurchases.push(itemId);
+                activeAccessory = itemId; // equip automatically on buy
+            } else if (itemType === 'coupon') {
+                const newReq = {
+                    id: 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    icon: '🛒',
+                    title: `Купон из магазина: ${itemId}`,
+                    details: `Цена: 🪙 ${cost} монет. Куплено Любой.`,
+                    status: 'pending',
+                    timestamp: Date.now(),
+                    syncStatus: 'pending',
+                    notificationStatus: 'pending'
+                };
+                requestsData.push(newReq);
+                localVersion++;
+                currentPage = 1;
+            }
+            
+            renderShop();
+            updateCatAccessoryUI();
+            renderRequests();
+            
+            try {
+                showToast('Покупка совершается...');
+                await saveRequestsToServer();
+                showToast('Покупка успешно совершена! 🎉');
+                
+                if (itemType === 'coupon') {
+                    sendCouponPurchaseNotification(itemId, cost);
+                } else {
+                    sendAccessoryPurchaseNotification(itemId, cost);
+                }
+            } catch (err) {
+                console.error('Error buying shop item:', err);
+                coins = oldCoins;
+                shopPurchases = oldPurchases;
+                activeAccessory = oldAccessory;
+                if (itemType === 'coupon') {
+                    // remove the last request if it was a coupon
+                    const idx = requestsData.findIndex(r => r.title === `Купон из магазина: ${itemId}` && r.status === 'pending');
+                    if (idx !== -1) {
+                        requestsData.splice(idx, 1);
+                        localVersion++;
+                    }
+                }
+                renderShop();
+                updateCatAccessoryUI();
+                renderRequests();
+                showToast('Ошибка при совершении покупки!');
+            }
+        }
+
+        async function sendCouponPurchaseNotification(couponName, cost) {
+            try {
+                const siteUrl = window.location.origin + window.location.pathname + '#admin';
+                await fetch(`${PROXY_URL}?path=notify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    },
+                    body: JSON.stringify({
+                        topic: 'chop_chop_care_' + BIN_ID,
+                        title: 'Куплен купон в магазине! 🎁',
+                        message: `Люба купила купон: "${couponName}" за 🪙 ${cost} монет!\nНужно выполнить его на расстоянии.`,
+                        tags: ['shopping_bags', 'credit_card', 'bell'],
+                        priority: 4,
+                        click: siteUrl
+                    })
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function sendAccessoryPurchaseNotification(accId, cost) {
+            const accNames = {
+                bowtie: 'Галстук-бабочка 🎀',
+                sunglasses: 'Крутые очки 😎',
+                chain: 'Золотая цепочка 🪙',
+                crown: 'Королевская корона 👑'
+            };
+            const accName = accNames[accId] || accId;
+            try {
+                const siteUrl = window.location.origin + window.location.pathname + '#admin';
+                await fetch(`${PROXY_URL}?path=notify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    },
+                    body: JSON.stringify({
+                        topic: 'chop_chop_care_' + BIN_ID,
+                        title: 'Новый наряд Чоп-Чопы! 👕',
+                        message: `Люба купила аксессуар: "${accName}" за 🪙 ${cost} монет!`,
+                        tags: ['cat', 'shirt', 'sparkles'],
+                        priority: 3,
+                        click: siteUrl
+                    })
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function toggleAccessory(accessoryId) {
+            if (isSaving) return;
+            const oldAccessory = activeAccessory;
+            if (activeAccessory === accessoryId) {
+                activeAccessory = null; // take off
+            } else {
+                activeAccessory = accessoryId; // put on
+            }
+            
+            updateCatAccessoryUI();
+            renderShop();
+            
+            try {
+                await saveRequestsToServer();
+                showToast(activeAccessory ? 'Аксессуар надет!' : 'Аксессуар снят!');
+            } catch (err) {
+                console.error('Error toggling accessory:', err);
+                activeAccessory = oldAccessory;
+                updateCatAccessoryUI();
+                renderShop();
+                showToast('Ошибка сохранения наряда!');
+            }
+        }
+
+        function renderShop() {
+            const container = document.getElementById('shopContainer');
+            if (!container) return;
+            
+            container.style.display = 'block';
+            
+            const coupons = [
+                { id: 'taxi', name: 'Поездка на такси за мой счет 🚖', desc: 'Максим заказывает и оплачивает поездку на такси через Yandex Go.', cost: 50 },
+                { id: 'phone', name: 'Пополнение баланса телефона 📱', desc: 'Пополнение баланса мобильного или домашнего интернета.', cost: 40 },
+                { id: 'ticket', name: 'Билет в кино / на выставку 🎟️', desc: 'Билет на любой сеанс в кино или выставку в твоем городе.', cost: 60 },
+                { id: 'subscription', name: 'Оплата подписки на месяц 💳', desc: 'Оплата Яндекс.Плюс, TG Premium, MyBook или другого сервиса.', cost: 70 },
+                { id: 'marketplace', name: 'Сертификат на маркетплейс 🎁', desc: 'Цифровой сертификат в Ozon, WB или Золотое Яблоко.', cost: 120 },
+                { id: 'spa', name: 'Сертификат в SPA-салон 🧖‍♀️', desc: 'Электронный сертификат в хороший SPA или массажный салон.', cost: 250 }
+            ];
+            
+            const accessories = [
+                { id: 'bowtie', name: 'Галстук-бабочка 🎀', desc: 'Стильный розовый галстук-бабочка на шею Чоп-Чопы.', cost: 25 },
+                { id: 'sunglasses', name: 'Крутые очки 😎', desc: 'Модные темные очки для дерзкого взгляда.', cost: 40 },
+                { id: 'chain', name: 'Золотая цепочка 🪙', desc: 'Массиввная рэперская цепь с золотым медальоном.', cost: 60 },
+                { id: 'crown', name: 'Королевская корона 👑', desc: 'Роскошная золотая корона с драгоценными камнями.', cost: 120 }
+            ];
+            
+            let html = `
+                <div class="shop-title-row">
+                    <span class="shop-title">🛒 Магазин наград</span>
+                    <span class="coin-balance">🪙 <span id="coinBalanceVal">${coins}</span></span>
+                </div>
+                <div class="shop-tabs">
+                    <button class="shop-tab-btn ${shopActiveTab === 'coupons' ? 'active' : ''}" onclick="changeShopTab('coupons')">🎁 Купоны</button>
+                    <button class="shop-tab-btn ${shopActiveTab === 'accessories' ? 'active' : ''}" onclick="changeShopTab('accessories')">👕 Гардероб</button>
+                </div>
+                <div class="shop-grid">
+            `;
+            
+            if (shopActiveTab === 'coupons') {
+                coupons.forEach(item => {
+                    const canBuy = coins >= item.cost && !isAdmin;
+                    html += `
+                        <div class="shop-card">
+                            <div class="shop-card-info">
+                                <span class="shop-card-title">${item.name}</span>
+                                <span class="shop-card-desc">${item.desc}</span>
+                                <span class="shop-card-cost">🪙 ${item.cost}</span>
+                            </div>
+                            <button class="shop-card-btn" ${!canBuy ? 'disabled' : ''} onclick="buyShopItem('${item.name}', 'coupon', ${item.cost})">
+                                ${isAdmin ? 'Режим просмотра' : (coins >= item.cost ? 'Купить купон' : 'Недостаточно монет')}
+                            </button>
+                        </div>
+                    `;
+                });
+            } else {
+                accessories.forEach(item => {
+                    const isBought = shopPurchases.includes(item.id);
+                    const isEquipped = activeAccessory === item.id;
+                    const canBuy = coins >= item.cost && !isAdmin;
+                    
+                    let btnHtml = '';
+                    if (isBought) {
+                        btnHtml = `
+                            <button class="shop-card-btn equipped" ${isAdmin ? 'disabled' : ''} onclick="toggleAccessory('${item.id}')">
+                                <span>${isEquipped ? 'Надето' : 'Надеть'}</span>
+                            </button>
+                        `;
+                    } else {
+                        btnHtml = `
+                            <button class="shop-card-btn" ${!canBuy ? 'disabled' : ''} onclick="buyShopItem('${item.id}', 'accessory', ${item.cost})">
+                                ${isAdmin ? 'Режим просмотра' : (coins >= item.cost ? `Купить за 🪙 ${item.cost}` : 'Недостаточно монет')}
+                            </button>
+                        `;
+                    }
+                    
+                    html += `
+                        <div class="shop-card">
+                            <div class="shop-card-info">
+                                <span class="shop-card-title">${item.name}</span>
+                                <span class="shop-card-desc">${item.desc}</span>
+                                <span class="shop-card-cost">🪙 ${item.cost}</span>
+                            </div>
+                            ${btnHtml}
+                        </div>
+                    `;
+                });
+            }
+            
+            html += `</div>`;
+            container.innerHTML = html;
         }
 
         // Close modal when clicking outside content area
