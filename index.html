@@ -798,6 +798,197 @@
             color: var(--text-muted);
             line-height: 1.4;
         }
+
+        /* --- New Styles: Miss You Button & Heart Particles --- */
+        .cat-frame-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 0 auto;
+        }
+        .miss-heart-btn {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(25, 27, 38, 0.85);
+            border: 1.5px solid rgba(236, 72, 153, 0.4);
+            color: #ec4899;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.25), inset 0 0 8px rgba(236, 72, 153, 0.1);
+            outline: none;
+            animation: heartBeatPulse 1.8s infinite;
+        }
+        .miss-heart-btn:hover {
+            transform: scale(1.15);
+            background: #ec4899;
+            color: white;
+            border-color: #ec4899;
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.6);
+        }
+        .miss-heart-btn:active {
+            transform: scale(0.9);
+        }
+        @keyframes heartBeatPulse {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.12); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.12); }
+            70% { transform: scale(1); }
+        }
+
+        .anim-love {
+            animation: loveBounce 0.6s ease infinite alternate;
+        }
+        @keyframes loveBounce {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-10px) scale(1.03); }
+        }
+
+        .heart-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 24px;
+            user-select: none;
+            animation: floatUpAndFade 1.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        @keyframes floatUpAndFade {
+            0% {
+                transform: translate(-50%, -50%) translate(0, 0) scale(0.5) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(var(--scale)) rotate(var(--rot));
+                opacity: 0;
+            }
+        }
+
+        /* --- New Styles: Daily Quest Card --- */
+        .quest-card {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.1), 0 0 15px rgba(236, 72, 153, 0.05);
+            border-radius: 20px;
+            padding: 16px 20px;
+            margin: 10px 0 24px 0;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.4s ease;
+        }
+        .quest-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .quest-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .quest-label {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #f472b6;
+            letter-spacing: 1.5px;
+            background: rgba(236, 72, 153, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(236, 72, 153, 0.2);
+        }
+        .quest-status-text {
+            font-size: 10px;
+            font-weight: 700;
+            color: #c084fc;
+        }
+        .quest-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 10px;
+            line-height: 1.45;
+        }
+        .quest-reward {
+            font-size: 11px;
+            color: #a78bfa;
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px dashed rgba(168, 85, 247, 0.2);
+            padding: 8px 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .quest-complete-btn {
+            width: 100%;
+            background: linear-gradient(90deg, #a855f7 0%, #ec4899 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            padding: 10px 0;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .quest-complete-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+        }
+        .quest-complete-btn:active {
+            transform: translateY(0);
+        }
+        .quest-card.completed {
+            border-color: rgba(34, 197, 94, 0.3);
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.04) 0%, rgba(168, 85, 247, 0.04) 100%);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.05);
+        }
+        .quest-card.completed .quest-label {
+            color: #4ade80;
+            background: rgba(34, 197, 94, 0.15);
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+        .quest-card.completed .quest-text {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        .quest-card.completed .quest-reward {
+            border-color: rgba(34, 197, 94, 0.2);
+            background: rgba(34, 197, 94, 0.05);
+            color: #4ade80;
+        }
+        .quest-completed-badge {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 12px;
+            color: #4ade80;
+            padding: 9px 0;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
     </style>
 </head>
 <body>
@@ -823,74 +1014,97 @@
                     <button class="admin-btn" onclick="saveTvMessage()" style="background: #a855f7; white-space: nowrap;">Сохранить</button>
                 </div>
             </div>
+            <!-- Quest & Reward editor -->
+            <div style="margin-top: 12px; border-top: 1px dashed rgba(239, 68, 68, 0.2); padding-top: 10px; text-align: left;">
+                <label style="color: #f87171; font-size: 10px; margin-bottom: 6px; display: block;">Задание и награда дня для Любы:</label>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <input type="text" id="adminQuestText" placeholder="Что нужно сделать (квест)?" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 6px 10px; color: white; font-size: 11px; outline: none;">
+                    <input type="text" id="adminRewardText" placeholder="Что Люба получит (награда)?" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 6px 10px; color: white; font-size: 11px; outline: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                        <span id="adminQuestStatus" style="font-size: 10px; color: #f87171; font-weight: bold;">Статус: Загрузка...</span>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="admin-btn" id="adminResetQuestBtn" onclick="resetQuest()" style="background: #ef4444; display: none;">Сбросить статус</button>
+                            <button class="admin-btn" onclick="saveQuest()" style="background: #a855f7;">Сохранить квест</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Floating Cat SVG -->
-        <div class="cat-frame floating" id="catFrame" title="Кликни на меня!">
-            <svg class="baton-svg" viewBox="0 0 220 180" id="catSvg">
-                <!-- Ears -->
-                <path class="left-ear" d="M 50 45 C 30 15, 15 35, 35 60 Z" fill="#16171d" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
-                <path class="right-ear" d="M 170 45 C 190 15, 205 35, 185 60 Z" fill="#16171d" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
-                <!-- Head -->
-                <ellipse cx="110" cy="100" rx="85" ry="70" fill="#16171d" />
-                <!-- Forehead stripes -->
-                <path d="M 103 36 L 103 54 M 110 32 L 110 56 M 117 36 L 117 54" stroke="#c05621" stroke-width="3.5" stroke-linecap="round" />
-                <!-- Eyes -->
-                <g class="left-eye" id="leftEye">
-                    <circle cx="65" cy="95" r="20" fill="#111" stroke="#fbbf24" stroke-width="5.5" />
-                    <circle cx="70" cy="90" r="4.5" fill="#fff" />
-                </g>
-                <g class="right-eye" id="rightEye">
-                    <circle cx="155" cy="95" r="20" fill="#111" stroke="#fbbf24" stroke-width="5.5" />
-                    <circle cx="160" cy="90" r="4.5" fill="#fff" />
-                </g>
-                <!-- Closed eyes for sleeping state -->
-                <path id="leftEyeClosed" d="M 48 95 Q 65 107 82 95" stroke="#fbbf24" stroke-width="5.5" stroke-linecap="round" fill="none" />
-                <path id="rightEyeClosed" d="M 138 95 Q 155 107 172 95" stroke="#fbbf24" stroke-width="5.5" stroke-linecap="round" fill="none" />
-                <!-- Peeking eyes for sleeping-peek state -->
-                <g id="leftEyePeek">
-                    <ellipse cx="65" cy="95" rx="17" ry="5.5" fill="#111" stroke="#fbbf24" stroke-width="5.5" />
-                    <circle cx="68" cy="94" r="2" fill="#fff" />
-                </g>
-                <g id="rightEyePeek">
-                    <ellipse cx="155" cy="95" rx="17" ry="5.5" fill="#111" stroke="#fbbf24" stroke-width="5.5" />
-                    <circle cx="158" cy="94" r="2" fill="#fff" />
-                </g>
-                <!-- Nose -->
-                <ellipse cx="110" cy="106" rx="7.5" ry="5.5" fill="#f472b6" />
-                <!-- Whiskers -->
-                <g class="whiskers-left">
-                    <line x1="32" y1="102" x2="12" y2="103" stroke="#c05621" stroke-width="2.5" stroke-linecap="round" />
-                    <line x1="30" y1="110" x2="8" y2="114" stroke="#c05621" stroke-width="2.5" stroke-linecap="round" />
-                    <line x1="33" y1="118" x2="13" y2="125" stroke="#c05621" stroke-width="2.5" stroke-linecap="round" />
-                </g>
-                <g class="whiskers-right">
-                    <line x1="188" y1="102" x2="208" y2="103" stroke="#c05621" stroke-width="2.5" stroke-linecap="round" />
-                    <line x1="190" y1="110" x2="212" y2="114" stroke="#c05621" stroke-width="2.5" stroke-linecap="round" />
-                    <line x1="187" y1="118" x2="207" y2="125" stroke="#c05621" stroke-width="2.5" stroke-linecap="round" />
-                </g>
-                <!-- Nightcap for sleep state -->
-                <g id="nightcap" style="display: none;">
-                    <!-- Cap body (blue) -->
-                    <path d="M 65 52 Q 110 35 155 52 C 160 30, 145 10, 110 8 C 80 6, 60 25, 50 35 C 40 45, 38 52, 45 55 C 50 57, 55 52, 65 52 Z" fill="#3b82f6" />
-                    <!-- White trim at base -->
-                    <path d="M 63 54 Q 110 36 157 54" stroke="#ffffff" stroke-width="8" stroke-linecap="round" fill="none" />
-                    <!-- Pompom at the tip -->
-                    <circle cx="43" cy="50" r="10" fill="#ffffff" />
-                </g>
-                <!-- Construction helmet for work state -->
-                <g id="workHelmet" style="display: none;">
-                    <!-- Helmet Dome -->
-                    <path d="M 65 52 C 65 20, 155 20, 155 52 Z" fill="#ea580c" />
-                    <!-- Helmet Brim -->
-                    <path d="M 55 52 Q 110 46 165 52 C 170 54, 170 56, 165 57 Q 110 51 55 57 C 50 56, 50 54, 55 52 Z" fill="#f97316" />
-                    <!-- Helmet Ridge -->
-                    <path d="M 103 23 Q 110 20 117 23 L 115 50 Q 110 48 105 50 Z" fill="#facc15" />
-                    <!-- Safety Cross Badge -->
-                    <circle cx="110" cy="38" r="5" fill="#ffffff" />
-                    <path d="M 107.5 38 L 112.5 38 M 110 35.5 L 110 40.5" stroke="#ea580c" stroke-width="1.5" />
-                </g>
-            </svg>
+        <!-- Floating Cat SVG in Wrapper -->
+        <div class="cat-frame-wrapper">
+            <div class="cat-frame floating" id="catFrame" title="Кликни на меня!">
+                <svg class="baton-svg" viewBox="0 0 220 180" id="catSvg">
+                    <!-- Ears -->
+                    <path class="left-ear" d="M 50 45 C 30 15, 15 35, 35 60 Z" fill="#16171d" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
+                    <path class="right-ear" d="M 170 45 C 190 15, 205 35, 185 60 Z" fill="#16171d" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
+                    <!-- Head -->
+                    <ellipse cx="110" cy="100" rx="85" ry="70" fill="#16171d" />
+                    <!-- Forehead stripes -->
+                    <path d="M 103 36 L 103 54 M 110 32 L 110 56 M 117 36 L 117 54" stroke="#c05621" stroke-width="3.5" stroke-linecap="round" />
+                    <!-- Eyes -->
+                    <g class="left-eye" id="leftEye">
+                        <circle cx="65" cy="95" r="20" fill="#111" stroke="#fbbf24" stroke-width="5.5" />
+                        <circle cx="70" cy="90" r="4.5" fill="#fff" />
+                    </g>
+                    <g class="right-eye" id="rightEye">
+                        <circle cx="155" cy="95" r="20" fill="#111" stroke="#fbbf24" stroke-width="5.5" />
+                        <circle cx="160" cy="90" r="4.5" fill="#fff" />
+                    </g>
+                    <!-- Closed eyes for sleeping state -->
+                    <path id="leftEyeClosed" d="M 48 95 Q 65 107 82 95" stroke="#fbbf24" stroke-width="5.5" stroke-linecap="round" fill="none" />
+                    <path id="rightEyeClosed" d="M 138 95 Q 155 107 172 95" stroke="#fbbf24" stroke-width="5.5" stroke-linecap="round" fill="none" />
+                    <!-- Peeking eyes for sleeping-peek state -->
+                    <g id="leftEyePeek">
+                        <ellipse cx="65" cy="95" rx="17" ry="5.5" fill="#111" stroke="#fbbf24" stroke-width="5.5" />
+                        <circle cx="68" cy="94" r="2" fill="#fff" />
+                    </g>
+                    <g id="rightEyePeek">
+                        <ellipse cx="155" cy="95" rx="17" ry="5.5" fill="#111" stroke="#fbbf24" stroke-width="5.5" />
+                        <circle cx="158" cy="94" r="2" fill="#fff" />
+                    </g>
+                    <!-- Heart eyes for love/miss state -->
+                    <g id="heartEyes" style="display: none;">
+                        <path d="M 65 108 C 50 96, 45 80, 56 80 C 62 80, 65 85, 65 85 C 65 85, 68 80, 74 80 C 85 80, 80 96, 65 108 Z" fill="#ec4899" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                        <path d="M 155 108 C 140 96, 135 80, 146 80 C 152 80, 155 85, 155 85 C 155 85, 158 80, 164 80 C 175 80, 170 96, 155 108 Z" fill="#ec4899" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                    </g>
+                    <!-- Nose -->
+                    <ellipse cx="110" cy="106" rx="7.5" ry="5.5" fill="#f472b6" />
+                    <!-- Whiskers -->
+                    <g class="whiskers-left">
+                        <line x1="32" y1="102" x2="12" y2="103" stroke="#c05621" stroke-width="2.5" stroke-linecap="round" />
+                        <line x1="30" y1="110" x2="8" y2="114" stroke="#c05621" stroke-width="2.5" stroke-linecap="round" />
+                        <line x1="33" y1="118" x2="13" y2="125" stroke="#c05621" stroke-width="2.5" stroke-linecap="round" />
+                    </g>
+                    <g class="whiskers-right">
+                        <line x1="188" y1="102" x2="208" y2="103" stroke="#c05621" stroke-width="2.5" stroke-linecap="round" />
+                        <line x1="190" y1="110" x2="212" y2="114" stroke="#c05621" stroke-width="2.5" stroke-linecap="round" />
+                        <line x1="187" y1="118" x2="207" y2="125" stroke="#c05621" stroke-width="2.5" stroke-linecap="round" />
+                    </g>
+                    <!-- Nightcap for sleep state -->
+                    <g id="nightcap" style="display: none;">
+                        <!-- Cap body (blue) -->
+                        <path d="M 65 52 Q 110 35 155 52 C 160 30, 145 10, 110 8 C 80 6, 60 25, 50 35 C 40 45, 38 52, 45 55 C 50 57, 55 52, 65 52 Z" fill="#3b82f6" />
+                        <!-- White trim at base -->
+                        <path d="M 63 54 Q 110 36 157 54" stroke="#ffffff" stroke-width="8" stroke-linecap="round" fill="none" />
+                        <!-- Pompom at the tip -->
+                        <circle cx="43" cy="50" r="10" fill="#ffffff" />
+                    </g>
+                    <!-- Construction helmet for work state -->
+                    <g id="workHelmet" style="display: none;">
+                        <!-- Helmet Dome -->
+                        <path d="M 65 52 C 65 20, 155 20, 155 52 Z" fill="#ea580c" />
+                        <!-- Helmet Brim -->
+                        <path d="M 55 52 Q 110 46 165 52 C 170 54, 170 56, 165 57 Q 110 51 55 57 C 50 56, 50 54, 55 52 Z" fill="#f97316" />
+                        <!-- Helmet Ridge -->
+                        <path d="M 103 23 Q 110 20 117 23 L 115 50 Q 110 48 105 50 Z" fill="#facc15" />
+                        <!-- Safety Cross Badge -->
+                        <circle cx="110" cy="38" r="5" fill="#ffffff" />
+                        <path d="M 107.5 38 L 112.5 38 M 110 35.5 L 110 40.5" stroke="#ea580c" stroke-width="1.5" />
+                    </g>
+                </svg>
+            </div>
+            <button class="miss-heart-btn" onclick="sendMissYou()">❤️</button>
         </div>
 
         <!-- Mood Indicator UI -->
@@ -1039,6 +1253,9 @@
             <span class="back-link" onclick="showForm('gift')">Назад</span>
         </div>
 
+        <!-- Daily Quest Widget -->
+        <div id="questContainer"></div>
+
         <!-- History Checklist Section -->
         <div class="history-section">
             <div class="history-title">
@@ -1084,6 +1301,9 @@
         let requestsData = [];
         let localVersion = 0;
         let isAdmin = false;
+        let dailyQuest = '';
+        let dailyReward = '';
+        let dailyQuestCompleted = false;
         let currentPage = 1;
         const itemsPerPage = 5;
 
@@ -1146,7 +1366,13 @@
             updateMoodUI();
             if (isAdmin) {
                 updateAdminStatusButtons();
+                updateAdminQuestStatusUI();
+                const qText = document.getElementById('adminQuestText');
+                const qReward = document.getElementById('adminRewardText');
+                if (qText) qText.value = dailyQuest;
+                if (qReward) qReward.value = dailyReward;
             }
+            renderQuestCard();
             renderRequests();
             
             loadRequests();
@@ -1182,6 +1408,11 @@
                 updateAdminStatusButtons();
                 const tvInput = document.getElementById('adminTvMessage');
                 if (tvInput) tvInput.value = tvMessage;
+                const qText = document.getElementById('adminQuestText');
+                const qReward = document.getElementById('adminRewardText');
+                if (qText) qText.value = dailyQuest;
+                if (qReward) qReward.value = dailyReward;
+                updateAdminQuestStatusUI();
             } else {
                 adminHeader.style.display = 'none';
             }
@@ -1259,6 +1490,9 @@
                         
                         catStatus = (data.record && data.record.catStatus) ? data.record.catStatus : 'normal';
                         tvMessage = (data.record && data.record.tvMessage) ? data.record.tvMessage : '';
+                        dailyQuest = (data.record && data.record.dailyQuest) ? data.record.dailyQuest : '';
+                        dailyReward = (data.record && data.record.dailyReward) ? data.record.dailyReward : '';
+                        dailyQuestCompleted = (data.record && data.record.dailyQuestCompleted) ? !!data.record.dailyQuestCompleted : false;
                         
                         const dbMood = (data.record && typeof data.record.catMood === 'number') ? data.record.catMood : 80;
                         const dbInteractionTime = (data.record && typeof data.record.lastInteractionTime === 'number') 
@@ -1275,6 +1509,9 @@
                         localStorage.setItem('cat_mood_fallback', catMood);
                         localStorage.setItem('cat_last_interaction_fallback', lastInteractionTime);
                         localStorage.setItem('tv_message_fallback', tvMessage);
+                        localStorage.setItem('daily_quest_fallback', dailyQuest);
+                        localStorage.setItem('daily_reward_fallback', dailyReward);
+                        localStorage.setItem('daily_quest_completed_fallback', dailyQuestCompleted ? 'true' : 'false');
                         
                         applyCatStatus();
                         updateMoodUI();
@@ -1282,7 +1519,13 @@
                             updateAdminStatusButtons();
                             const tvInput = document.getElementById('adminTvMessage');
                             if (tvInput) tvInput.value = tvMessage;
+                            const qText = document.getElementById('adminQuestText');
+                            const qReward = document.getElementById('adminRewardText');
+                            if (qText) qText.value = dailyQuest;
+                            if (qReward) qReward.value = dailyReward;
+                            updateAdminQuestStatusUI();
                         }
+                        renderQuestCard();
                         renderRequests();
 
                         if (pendingLocal.length > 0) {
@@ -1297,7 +1540,9 @@
                         updateMoodUI();
                         if (isAdmin) {
                             updateAdminStatusButtons();
+                            updateAdminQuestStatusUI();
                         }
+                        renderQuestCard();
                         renderRequests();
                     }
                 }
@@ -1309,7 +1554,9 @@
                     updateMoodUI();
                     if (isAdmin) {
                         updateAdminStatusButtons();
+                        updateAdminQuestStatusUI();
                     }
+                    renderQuestCard();
                     renderRequests();
                 }
             }
@@ -1321,6 +1568,9 @@
             catMood = parseInt(localStorage.getItem('cat_mood_fallback') || '80', 10);
             lastInteractionTime = parseInt(localStorage.getItem('cat_last_interaction_fallback') || Date.now().toString(), 10);
             tvMessage = localStorage.getItem('tv_message_fallback') || '';
+            dailyQuest = localStorage.getItem('daily_quest_fallback') || '';
+            dailyReward = localStorage.getItem('daily_reward_fallback') || '';
+            dailyQuestCompleted = localStorage.getItem('daily_quest_completed_fallback') === 'true';
             
             const hoursPassed = (Date.now() - lastInteractionTime) / (1000 * 60 * 60);
             catMood = Math.max(10, Math.round(catMood - hoursPassed * 1));
@@ -1346,6 +1596,9 @@
             localStorage.setItem('cat_mood_fallback', catMood);
             localStorage.setItem('cat_last_interaction_fallback', lastInteractionTime);
             localStorage.setItem('tv_message_fallback', tvMessage);
+            localStorage.setItem('daily_quest_fallback', dailyQuest);
+            localStorage.setItem('daily_reward_fallback', dailyReward);
+            localStorage.setItem('daily_quest_completed_fallback', dailyQuestCompleted ? 'true' : 'false');
             
             try {
                 const response = await fetch(`${PROXY_URL}?path=db`, {
@@ -1358,7 +1611,10 @@
                         catStatus: catStatus,
                         catMood: catMood,
                         lastInteractionTime: lastInteractionTime,
-                        tvMessage: tvMessage
+                        tvMessage: tvMessage,
+                        dailyQuest: dailyQuest,
+                        dailyReward: dailyReward,
+                        dailyQuestCompleted: dailyQuestCompleted
                     })
                 });
                 if (!response.ok) {
@@ -2025,6 +2281,311 @@
                 console.error('Error saving TV message:', err);
                 tvMessage = oldMessage;
                 showToast('Ошибка сохранения пожелания!');
+            }
+        }
+
+        // --- Interactive Love Button & Daily Quests Functions ---
+        let loveAnimationTimeout = null;
+
+        async function sendMissYou() {
+            if (isSaving) return;
+            
+            // Heart particle explosion
+            spawnHearts();
+            
+            // Animating the cat
+            const catSvg = document.getElementById('catSvg');
+            if (catSvg) {
+                // Remove all state classes temporarily
+                catSvg.classList.remove('state-sleeping', 'state-peeking', 'state-working');
+                catSvg.classList.add('anim-love');
+                
+                // Switch eyes to hearts
+                document.getElementById('heartEyes').style.display = 'block';
+                document.getElementById('leftEye').style.display = 'none';
+                document.getElementById('rightEye').style.display = 'none';
+                document.getElementById('leftEyeClosed').style.display = 'none';
+                document.getElementById('rightEyeClosed').style.display = 'none';
+                document.getElementById('leftEyePeek').style.display = 'none';
+                document.getElementById('rightEyePeek').style.display = 'none';
+                
+                if (loveAnimationTimeout) clearTimeout(loveAnimationTimeout);
+                loveAnimationTimeout = setTimeout(() => {
+                    catSvg.classList.remove('anim-love');
+                    document.getElementById('heartEyes').style.display = 'none';
+                    document.getElementById('leftEye').style.display = '';
+                    document.getElementById('rightEye').style.display = '';
+                    document.getElementById('leftEyeClosed').style.display = '';
+                    document.getElementById('rightEyeClosed').style.display = '';
+                    document.getElementById('leftEyePeek').style.display = '';
+                    document.getElementById('rightEyePeek').style.display = '';
+                    applyCatStatus(); // restore status representation
+                }, 3000);
+            }
+
+            const oldMood = catMood;
+            catMood = Math.min(100, catMood + 10);
+            lastInteractionTime = Date.now();
+            updateMoodUI();
+
+            try {
+                await saveRequestsToServer();
+                showToast('Уведомление отправлено Максиму! ❤️');
+                sendMissYouNotification();
+            } catch (err) {
+                console.error('Error saving miss you:', err);
+                catMood = oldMood;
+                updateMoodUI();
+                showToast('Ошибка сохранения настроения кота!');
+            }
+        }
+
+        async function sendMissYouNotification() {
+            try {
+                const siteUrl = window.location.origin + window.location.pathname + '#admin';
+                await fetch(`${PROXY_URL}?path=notify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    },
+                    body: JSON.stringify({
+                        topic: 'chop_chop_care_' + BIN_ID,
+                        title: 'Люба скучает по тебе! ❤️',
+                        message: 'Люба безумно скучает по тебе и шлет лучики любви!',
+                        tags: ['heartpulse', 'heart_eyes_cat', 'luvu'],
+                        priority: 4,
+                        click: siteUrl
+                    })
+                });
+            } catch (err) {
+                console.error('Error sending miss you notification:', err);
+            }
+        }
+
+        function spawnHearts() {
+            const count = 24;
+            const container = document.body;
+            const btn = document.querySelector('.miss-heart-btn');
+            const rect = btn ? btn.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
+            const startX = rect.left + rect.width / 2;
+            const startY = rect.top + rect.height / 2;
+            
+            const heartIcons = ['❤️', '💖', '💝', '💕', '💗'];
+            
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'heart-particle';
+                p.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 80 + Math.random() * 180;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance - 50;
+                
+                const rot = -45 + Math.random() * 90;
+                const scale = 0.5 + Math.random() * 1.2;
+                
+                p.style.left = `${startX}px`;
+                p.style.top = `${startY}px`;
+                p.style.setProperty('--tx', `${tx}px`);
+                p.style.setProperty('--ty', `${ty}px`);
+                p.style.setProperty('--rot', `${rot}deg`);
+                p.style.setProperty('--scale', scale);
+                
+                container.appendChild(p);
+                setTimeout(() => p.remove(), 1600);
+            }
+        }
+
+        function updateAdminQuestStatusUI() {
+            const qStatus = document.getElementById('adminQuestStatus');
+            const resetBtn = document.getElementById('adminResetQuestBtn');
+            if (!qStatus) return;
+            if (!dailyQuest) {
+                qStatus.innerText = 'Квест на сегодня не задан';
+                qStatus.style.color = '#f87171';
+                if (resetBtn) resetBtn.style.display = 'none';
+            } else if (dailyQuestCompleted) {
+                qStatus.innerText = 'Люба ВЫПОЛНИЛА квест! 🎉';
+                qStatus.style.color = '#4ade80';
+                if (resetBtn) resetBtn.style.display = 'inline-block';
+            } else {
+                qStatus.innerText = 'В процессе выполнения... ⏳';
+                qStatus.style.color = '#facc15';
+                if (resetBtn) resetBtn.style.display = 'none';
+            }
+        }
+
+        async function saveQuest() {
+            if (isSaving) return;
+            const qText = document.getElementById('adminQuestText').value.trim();
+            const qReward = document.getElementById('adminRewardText').value.trim();
+            
+            const oldQuest = dailyQuest;
+            const oldReward = dailyReward;
+            
+            // Setting a new quest text resets completion status by default
+            const oldCompleted = dailyQuestCompleted;
+            if (qText !== dailyQuest) {
+                dailyQuestCompleted = false;
+            }
+            
+            dailyQuest = qText;
+            dailyReward = qReward;
+            
+            try {
+                await saveRequestsToServer();
+                showToast('Квест сохранен на сервере!');
+                updateAdminQuestStatusUI();
+                renderQuestCard();
+            } catch (err) {
+                console.error('Error saving quest:', err);
+                dailyQuest = oldQuest;
+                dailyReward = oldReward;
+                dailyQuestCompleted = oldCompleted;
+                showToast('Не удалось сохранить квест!');
+            }
+        }
+
+        async function resetQuest() {
+            if (isSaving) return;
+            dailyQuestCompleted = false;
+            try {
+                await saveRequestsToServer();
+                showToast('Выполнение квеста сброшено!');
+                updateAdminQuestStatusUI();
+                renderQuestCard();
+            } catch (err) {
+                console.error('Error resetting quest:', err);
+                dailyQuestCompleted = true;
+                showToast('Не удалось сбросить квест!');
+            }
+        }
+
+        function renderQuestCard() {
+            const container = document.getElementById('questContainer');
+            if (!container) return;
+            
+            if (!dailyQuest) {
+                container.style.display = 'none';
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.style.display = 'block';
+            
+            if (dailyQuestCompleted) {
+                container.innerHTML = `
+                    <div class="quest-card completed">
+                        <div class="quest-title-row">
+                            <span class="quest-label">Квест дня выполнен ✨</span>
+                            <span class="quest-status-text">Готово!</span>
+                        </div>
+                        <div class="quest-text">${dailyQuest}</div>
+                        <div class="quest-reward">
+                            <span>🎁 Награда:</span> <strong>${dailyReward || 'Сюрприз!'}</strong>
+                        </div>
+                        <div class="quest-completed-badge">
+                            <span>🎉 Награда получена!</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="quest-card">
+                        <div class="quest-title-row">
+                            <span class="quest-label">Квест дня ⚡</span>
+                            <span class="quest-status-text">В процессе</span>
+                        </div>
+                        <div class="quest-text">${dailyQuest}</div>
+                        <div class="quest-reward">
+                            <span>🎁 Награда:</span> <strong>${dailyReward || 'Сюрприз!'}</strong>
+                        </div>
+                        <button class="quest-complete-btn" onclick="completeQuest()">
+                            <span>✨ Выполнить квест</span>
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        async function completeQuest() {
+            if (isSaving || dailyQuestCompleted) return;
+            
+            dailyQuestCompleted = true;
+            renderQuestCard();
+            if (isAdmin) {
+                updateAdminQuestStatusUI();
+            }
+            
+            // Heart/star particle explosion all over the screen!
+            spawnScreenExplosion();
+            
+            try {
+                await saveRequestsToServer();
+                showToast('Квест выполнен! Награда разблокирована! 🎉');
+                sendQuestCompletionNotification();
+            } catch (err) {
+                console.error('Error completing quest:', err);
+                dailyQuestCompleted = false;
+                renderQuestCard();
+                if (isAdmin) {
+                    updateAdminQuestStatusUI();
+                }
+                showToast('Ошибка при сохранении выполнения квеста!');
+            }
+        }
+
+        async function sendQuestCompletionNotification() {
+            try {
+                const siteUrl = window.location.origin + window.location.pathname + '#admin';
+                await fetch(`${PROXY_URL}?path=notify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    },
+                    body: JSON.stringify({
+                        topic: 'chop_chop_care_' + BIN_ID,
+                        title: 'Квест дня выполнен! 🎉',
+                        message: `Люба выполнила квест дня: "${dailyQuest}"!\nНаграда: "${dailyReward || 'Сюрприз!'}"`,
+                        tags: ['party', 'tada', 'gift', 'checkered_flag'],
+                        priority: 4,
+                        click: siteUrl
+                    })
+                });
+            } catch (err) {
+                console.error('Error sending quest notification:', err);
+            }
+        }
+
+        function spawnScreenExplosion() {
+            const count = 40;
+            const emojis = ['🎉', '✨', '💖', '⭐', '🌈', '🍭', '🌸', '❤️'];
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'heart-particle';
+                p.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                const startX = window.innerWidth / 2 + (Math.random() - 0.5) * 120;
+                const startY = window.innerHeight / 2 + (Math.random() - 0.5) * 120;
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 100 + Math.random() * 250;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance - 80;
+                
+                const rot = -180 + Math.random() * 360;
+                const scale = 0.6 + Math.random() * 1.5;
+                
+                p.style.left = `${startX}px`;
+                p.style.top = `${startY}px`;
+                p.style.setProperty('--tx', `${tx}px`);
+                p.style.setProperty('--ty', `${ty}px`);
+                p.style.setProperty('--rot', `${rot}deg`);
+                p.style.setProperty('--scale', scale);
+                
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1600);
             }
         }
 
