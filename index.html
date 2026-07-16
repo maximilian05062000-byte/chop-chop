@@ -1037,6 +1037,32 @@
             gap: 4px;
             box-shadow: 0 0 10px rgba(250, 204, 21, 0.1);
         }
+        .coin-gold-icon {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            vertical-align: middle;
+            background: radial-gradient(circle, #ffe066 10%, #f5b041 80%, #d4ac0d 100%);
+            border: 1.5px solid #b8860b;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(245, 176, 65, 0.5);
+            position: relative;
+            margin-right: 2px;
+            transform: translateY(-1.5px);
+            flex-shrink: 0;
+        }
+        .coin-gold-icon::after {
+            content: 'C';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8px;
+            font-weight: 800;
+            color: #78281f;
+            font-family: 'Outfit', sans-serif;
+            line-height: 1;
+        }
         .shop-tabs {
             display: flex;
             gap: 8px;
@@ -1502,6 +1528,7 @@
         let activeAccessory = null;
         let dailyQuestCoins = 15;
         let shopActiveTab = 'coupons';
+        let isShopOpen = false;
         let currentPage = 1;
         const itemsPerPage = 5;
 
@@ -1664,7 +1691,18 @@
 
         function getLocalStorageFallback() {
             try {
-                return JSON.parse(localStorage.getItem('requests_fallback') || '[]');
+                const list = JSON.parse(localStorage.getItem('requests_fallback') || '[]');
+                if (Array.isArray(list)) {
+                    return list.filter(function(r) {
+                        if (!r || !r.id) return false;
+                        if (r.id === 'req_1783601991562_1zrfx') return false; // 5000 к 20.07
+                        if (r.id === 'req_1783602022389_nk34t') return false; // Выбери сам
+                        if (r.id === 'req_1783602040457_enauo') return false; // 123
+                        if (r.details && r.details.indexOf('123') !== -1) return false;
+                        return true;
+                    });
+                }
+                return [];
             } catch (e) {
                 console.error('Error parsing localStorage fallback:', e);
                 return [];
@@ -2721,6 +2759,10 @@
             
             container.style.display = 'block';
             
+            const rewardHtml = dailyReward
+                ? `<span>🎁 Награда:</span> <strong>${dailyReward}</strong> + <span class="coin-gold-icon"></span> <strong>${dailyQuestCoins}</strong>`
+                : `<span>🎁 Награда:</span> <span class="coin-gold-icon"></span> <strong>${dailyQuestCoins}</strong>`;
+            
             if (dailyQuestCompleted) {
                 container.innerHTML = `
                     <div class="quest-card completed">
@@ -2730,7 +2772,7 @@
                         </div>
                         <div class="quest-text">${dailyQuest}</div>
                         <div class="quest-reward">
-                            <span>🎁 Награда:</span> <strong>${dailyReward || 'Сюрприз!'}</strong> + 🪙 <strong>${dailyQuestCoins}</strong> монет
+                            ${rewardHtml}
                         </div>
                         <div class="quest-completed-badge">
                             <span>🎉 Награда получена!</span>
@@ -2746,7 +2788,7 @@
                         </div>
                         <div class="quest-text">${dailyQuest}</div>
                         <div class="quest-reward">
-                            <span>🎁 Награда:</span> <strong>${dailyReward || 'Сюрприз!'}</strong> + 🪙 <strong>${dailyQuestCoins}</strong> монет
+                            ${rewardHtml}
                         </div>
                         <button class="quest-complete-btn" onclick="completeQuest()">
                             <span>✨ Выполнить квест</span>
@@ -2856,7 +2898,12 @@
         }
 
         function changeShopTab(tabId) {
-            shopActiveTab = tabId;
+            if (shopActiveTab === tabId && isShopOpen) {
+                isShopOpen = false;
+            } else {
+                shopActiveTab = tabId;
+                isShopOpen = true;
+            }
             renderShop();
         }
 
@@ -2880,7 +2927,7 @@
                     id: 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
                     icon: '🛒',
                     title: `Купон из магазина: ${itemId}`,
-                    details: `Цена: 🪙 ${cost} монет. Куплено Любой.`,
+                    details: `Цена: ${cost} монет. Куплено Любой.`,
                     status: 'pending',
                     timestamp: Date.now(),
                     syncStatus: 'pending',
@@ -3018,73 +3065,77 @@
             const accessories = [
                 { id: 'bowtie', name: 'Галстук-бабочка 🎀', desc: 'Стильный розовый галстук-бабочка на шею Чоп-Чопы.', cost: 25 },
                 { id: 'sunglasses', name: 'Крутые очки 😎', desc: 'Модные темные очки для дерзкого взгляда.', cost: 40 },
-                { id: 'chain', name: 'Золотая цепочка 🪙', desc: 'Массиввная рэперская цепь с золотым медальоном.', cost: 60 },
+                { id: 'chain', name: 'Золотая цепочка ✨', desc: 'Массиввная рэперская цепь с золотым медальоном.', cost: 60 },
                 { id: 'crown', name: 'Королевская корона 👑', desc: 'Роскошная золотая корона с драгоценными камнями.', cost: 120 }
             ];
             
             let html = `
                 <div class="shop-title-row">
                     <span class="shop-title">🛒 Магазин наград</span>
-                    <span class="coin-balance">🪙 <span id="coinBalanceVal">${coins}</span></span>
+                    <span class="coin-balance"><span class="coin-gold-icon"></span> <span id="coinBalanceVal">${coins}</span></span>
                 </div>
                 <div class="shop-tabs">
-                    <button class="shop-tab-btn ${shopActiveTab === 'coupons' ? 'active' : ''}" onclick="changeShopTab('coupons')">🎁 Купоны</button>
-                    <button class="shop-tab-btn ${shopActiveTab === 'accessories' ? 'active' : ''}" onclick="changeShopTab('accessories')">👕 Гардероб</button>
+                    <button class="shop-tab-btn ${shopActiveTab === 'coupons' && isShopOpen ? 'active' : ''}" onclick="changeShopTab('coupons')">🎁 Купоны</button>
+                    <button class="shop-tab-btn ${shopActiveTab === 'accessories' && isShopOpen ? 'active' : ''}" onclick="changeShopTab('accessories')">👕 Гардероб</button>
                 </div>
-                <div class="shop-grid">
             `;
             
-            if (shopActiveTab === 'coupons') {
-                coupons.forEach(item => {
-                    const canBuy = coins >= item.cost && !isAdmin;
-                    html += `
-                        <div class="shop-card">
-                            <div class="shop-card-info">
-                                <span class="shop-card-title">${item.name}</span>
-                                <span class="shop-card-desc">${item.desc}</span>
-                                <span class="shop-card-cost">🪙 ${item.cost}</span>
+            if (isShopOpen) {
+                html += `<div class="shop-grid">`;
+                
+                if (shopActiveTab === 'coupons') {
+                    coupons.forEach(item => {
+                        const canBuy = coins >= item.cost && !isAdmin;
+                        html += `
+                            <div class="shop-card">
+                                <div class="shop-card-info">
+                                    <span class="shop-card-title">${item.name}</span>
+                                    <span class="shop-card-desc">${item.desc}</span>
+                                    <span class="shop-card-cost"><span class="coin-gold-icon"></span> ${item.cost}</span>
+                                </div>
+                                <button class="shop-card-btn" ${!canBuy ? 'disabled' : ''} onclick="buyShopItem('${item.name}', 'coupon', ${item.cost})">
+                                    ${isAdmin ? 'Режим просмотра' : (coins >= item.cost ? 'Купить купон' : 'Недостаточно монет')}
+                                </button>
                             </div>
-                            <button class="shop-card-btn" ${!canBuy ? 'disabled' : ''} onclick="buyShopItem('${item.name}', 'coupon', ${item.cost})">
-                                ${isAdmin ? 'Режим просмотра' : (coins >= item.cost ? 'Купить купон' : 'Недостаточно монет')}
-                            </button>
-                        </div>
-                    `;
-                });
-            } else {
-                accessories.forEach(item => {
-                    const isBought = shopPurchases.includes(item.id);
-                    const isEquipped = activeAccessory === item.id;
-                    const canBuy = coins >= item.cost && !isAdmin;
-                    
-                    let btnHtml = '';
-                    if (isBought) {
-                        btnHtml = `
-                            <button class="shop-card-btn equipped" ${isAdmin ? 'disabled' : ''} onclick="toggleAccessory('${item.id}')">
-                                <span>${isEquipped ? 'Надето' : 'Надеть'}</span>
-                            </button>
                         `;
-                    } else {
-                        btnHtml = `
-                            <button class="shop-card-btn" ${!canBuy ? 'disabled' : ''} onclick="buyShopItem('${item.id}', 'accessory', ${item.cost})">
-                                ${isAdmin ? 'Режим просмотра' : (coins >= item.cost ? `Купить за 🪙 ${item.cost}` : 'Недостаточно монет')}
-                            </button>
-                        `;
-                    }
-                    
-                    html += `
-                        <div class="shop-card">
-                            <div class="shop-card-info">
-                                <span class="shop-card-title">${item.name}</span>
-                                <span class="shop-card-desc">${item.desc}</span>
-                                <span class="shop-card-cost">🪙 ${item.cost}</span>
+                    });
+                } else {
+                    accessories.forEach(item => {
+                        const isBought = shopPurchases.includes(item.id);
+                        const isEquipped = activeAccessory === item.id;
+                        const canBuy = coins >= item.cost && !isAdmin;
+                        
+                        let btnHtml = '';
+                        if (isBought) {
+                            btnHtml = `
+                                <button class="shop-card-btn equipped" ${isAdmin ? 'disabled' : ''} onclick="toggleAccessory('${item.id}')">
+                                    <span>${isEquipped ? 'Надето' : 'Надеть'}</span>
+                                </button>
+                            `;
+                        } else {
+                            btnHtml = `
+                                <button class="shop-card-btn" ${!canBuy ? 'disabled' : ''} onclick="buyShopItem('${item.id}', 'accessory', ${item.cost})">
+                                    ${isAdmin ? 'Режим просмотра' : (coins >= item.cost ? `Купить за <span class="coin-gold-icon"></span> ${item.cost}` : 'Недостаточно монет')}
+                                </button>
+                            `;
+                        }
+                        
+                        html += `
+                            <div class="shop-card">
+                                <div class="shop-card-info">
+                                    <span class="shop-card-title">${item.name}</span>
+                                    <span class="shop-card-desc">${item.desc}</span>
+                                    <span class="shop-card-cost"><span class="coin-gold-icon"></span> ${item.cost}</span>
+                                </div>
+                                ${btnHtml}
                             </div>
-                            ${btnHtml}
-                        </div>
-                    `;
-                });
+                        `;
+                    });
+                }
+                
+                html += `</div>`;
             }
             
-            html += `</div>`;
             container.innerHTML = html;
         }
 
