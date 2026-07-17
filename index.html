@@ -1698,6 +1698,9 @@
                         if (r.id === 'req_1783601991562_1zrfx') return false; // 5000 к 20.07
                         if (r.id === 'req_1783602022389_nk34t') return false; // Выбери сам
                         if (r.id === 'req_1783602040457_enauo') return false; // 123
+                        if (r.id === 'req_1784225000001_13k') return false; // duplicate 13k
+                        if (r.id === 'req_1784225000002_50k') return false; // duplicate 50k
+                        if (r.id === 'req_1784225000003_gift') return false; // duplicate gift
                         if (r.details && r.details.indexOf('123') !== -1) return false;
                         return true;
                     });
@@ -1723,7 +1726,13 @@
                         const serverRequests = data.record.requests;
                         
                         // Merge any local requests not present on the server to prevent data loss
-                        const localOnly = requestsData.filter(r => r && r.id && !serverRequests.some(sr => sr.id === r.id));
+                        const localOnly = requestsData.filter(r => {
+                            if (!r || !r.id) return false;
+                            if (r.id === 'req_1784225000001_13k') return false;
+                            if (r.id === 'req_1784225000002_50k') return false;
+                            if (r.id === 'req_1784225000003_gift') return false;
+                            return !serverRequests.some(sr => sr.id === r.id);
+                        });
                         if (localOnly.length > 0) {
                             localOnly.forEach(r => {
                                 r.syncStatus = 'pending';
