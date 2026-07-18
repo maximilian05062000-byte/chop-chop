@@ -1295,13 +1295,13 @@
                         <circle cx="110" cy="122" r="7.5" fill="#db2777" />
                     </g>
                     <g id="acc-sunglasses" style="display: none;">
-                        <ellipse cx="65" cy="95" rx="22" ry="14" fill="#111" stroke="#374151" stroke-width="2" />
-                        <path d="M 50 90 L 62 90" stroke="#fff" stroke-width="2.5" stroke-linecap="round" />
-                        <ellipse cx="155" cy="95" rx="22" ry="14" fill="#111" stroke="#374151" stroke-width="2" />
-                        <path d="M 140 90 L 152 90" stroke="#fff" stroke-width="2.5" stroke-linecap="round" />
-                        <path d="M 87 92 Q 110 84 133 92" stroke="#111" stroke-width="4.5" stroke-linecap="round" fill="none" />
-                        <path d="M 43 95 C 33 95 28 85 28 85" stroke="#111" stroke-width="3" stroke-linecap="round" fill="none" />
-                        <path d="M 177 95 C 187 95 192 85 192 85" stroke="#111" stroke-width="3" stroke-linecap="round" fill="none" />
+                        <ellipse cx="65" cy="95" rx="26" ry="24" fill="#111" stroke="#374151" stroke-width="2" />
+                        <path d="M 47 90 L 59 90" stroke="#fff" stroke-width="2.5" stroke-linecap="round" />
+                        <ellipse cx="155" cy="95" rx="26" ry="24" fill="#111" stroke="#374151" stroke-width="2" />
+                        <path d="M 137 90 L 149 90" stroke="#fff" stroke-width="2.5" stroke-linecap="round" />
+                        <path d="M 91 92 Q 110 84 129 92" stroke="#111" stroke-width="4.5" stroke-linecap="round" fill="none" />
+                        <path d="M 39 95 C 29 95 24 85 24 85" stroke="#111" stroke-width="3" stroke-linecap="round" fill="none" />
+                        <path d="M 181 95 C 191 95 196 85 196 85" stroke="#111" stroke-width="3" stroke-linecap="round" fill="none" />
                     </g>
                     <g id="acc-chain" style="display: none;">
                         <path d="M 72 122 Q 110 148 148 122" stroke="#fbbf24" stroke-width="5" stroke-linecap="round" fill="none" />
@@ -1684,6 +1684,10 @@
         // --- Database & Storage Operations ---
         
         let isSaving = false;
+        let clockDrift = 0;
+        function getNow() {
+            return Date.now() + clockDrift;
+        }
         let catStatus = 'normal'; // 'normal', 'sleeping', 'working'
         let catMood = 80;
         let lastInteractionTime = Date.now();
@@ -1745,6 +1749,11 @@
                             requestsData = serverRequests;
                         }
                         
+                        // Calculate clock drift from serverTime
+                        if (data.record && typeof data.record.serverTime === 'number') {
+                            clockDrift = data.record.serverTime - Date.now();
+                        }
+                        
                         catStatus = (data.record && data.record.catStatus) ? data.record.catStatus : 'normal';
                         tvMessage = (data.record && data.record.tvMessage) ? data.record.tvMessage : '';
                         dailyQuest = (data.record && data.record.dailyQuest) ? data.record.dailyQuest : '';
@@ -1758,10 +1767,10 @@
                         const dbMood = (data.record && typeof data.record.catMood === 'number') ? data.record.catMood : 80;
                         const dbInteractionTime = (data.record && typeof data.record.lastInteractionTime === 'number') 
                             ? data.record.lastInteractionTime 
-                            : Date.now();
+                            : getNow();
                         
                         // Calculate decay: 1% per hour
-                        const hoursPassed = (Date.now() - dbInteractionTime) / (1000 * 60 * 60);
+                        const hoursPassed = (getNow() - dbInteractionTime) / (1000 * 60 * 60);
                         catMood = Math.max(10, Math.round(dbMood - hoursPassed * 1));
                         lastInteractionTime = dbInteractionTime;
 
@@ -1839,7 +1848,7 @@
             requestsData = getLocalStorageFallback();
             catStatus = localStorage.getItem('cat_status_fallback') || 'normal';
             catMood = parseInt(localStorage.getItem('cat_mood_fallback') || '80', 10);
-            lastInteractionTime = parseInt(localStorage.getItem('cat_last_interaction_fallback') || Date.now().toString(), 10);
+            lastInteractionTime = parseInt(localStorage.getItem('cat_last_interaction_fallback') || getNow().toString(), 10);
             tvMessage = localStorage.getItem('tv_message_fallback') || '';
             dailyQuest = localStorage.getItem('daily_quest_fallback') || '';
             dailyReward = localStorage.getItem('daily_reward_fallback') || '';
@@ -1853,15 +1862,50 @@
             activeAccessory = localStorage.getItem('active_accessory_fallback') || null;
             dailyQuestCoins = parseInt(localStorage.getItem('daily_quest_coins_fallback') || '15', 10);
             
-            const hoursPassed = (Date.now() - lastInteractionTime) / (1000 * 60 * 60);
+            const hoursPassed = (getNow() - lastInteractionTime) / (1000 * 60 * 60);
             catMood = Math.max(10, Math.round(catMood - hoursPassed * 1));
         }
 
         async function saveRequestsToServer() {
             isSaving = true;
             
-            // Update lastInteractionTime to Date.now() so that the saved catMood corresponds to this timestamp
-            lastInteractionTime = Date.now();
+            // Try to fetch latest DB state before saving to prevent overwriting newer admin changes or concurrent edits
+            try {
+                const getRes = await fetch(`${PROXY_URL}?path=db`);
+                if (getRes.ok) {
+                    const getJson = await getRes.json();
+                    if (getJson && getJson.record) {
+                        const dbData = getJson.record;
+                        
+                        // 1. If not admin, do not overwrite admin fields
+                        if (!isAdmin) {
+                            if (dbData.dailyQuest !== undefined) dailyQuest = dbData.dailyQuest;
+                            if (dbData.dailyReward !== undefined) dailyReward = dbData.dailyReward;
+                            if (dbData.tvMessage !== undefined) tvMessage = dbData.tvMessage;
+                            if (dbData.catStatus !== undefined) catStatus = dbData.catStatus;
+                            if (typeof dbData.dailyQuestCoins === 'number') dailyQuestCoins = dbData.dailyQuestCoins;
+                        }
+                        
+                        // 2. Update clock drift from serverTime
+                        if (typeof dbData.serverTime === 'number') {
+                            clockDrift = dbData.serverTime - Date.now();
+                        }
+                        
+                        // 3. Concurrency check for cat mood: if server has a newer interaction timestamp, use it
+                        if (typeof dbData.lastInteractionTime === 'number' && dbData.lastInteractionTime > lastInteractionTime) {
+                            lastInteractionTime = dbData.lastInteractionTime;
+                            if (typeof dbData.catMood === 'number') {
+                                catMood = dbData.catMood;
+                            }
+                        } else {
+                            lastInteractionTime = getNow();
+                        }
+                    }
+                }
+            } catch (fetchErr) {
+                console.warn('Failed to fetch latest server state before saving, using local values:', fetchErr);
+                lastInteractionTime = getNow();
+            }
             
             // Mark all pending as synced for the server payload
             const payloadRequests = requestsData.map(r => {
@@ -2088,7 +2132,7 @@
             
             const oldMood = catMood;
             catMood = Math.min(100, catMood + 15);
-            lastInteractionTime = Date.now();
+            lastInteractionTime = getNow();
             
             updateMoodUI();
             
@@ -2114,7 +2158,7 @@
             
             const oldMood = catMood;
             catMood = Math.min(100, catMood + 10);
-            lastInteractionTime = Date.now();
+            lastInteractionTime = getNow();
             
             updateMoodUI();
             
@@ -2329,12 +2373,12 @@
             updateMoodUI();
 
             const newRequest = {
-                id: 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                id: 'req_' + getNow() + '_' + Math.random().toString(36).substr(2, 5),
                 icon: icon,
                 title: title,
                 details: details || '',
                 status: 'pending',
-                timestamp: Date.now(),
+                timestamp: getNow(),
                 syncStatus: 'pending',
                 notificationStatus: 'pending'
             };
@@ -2614,7 +2658,7 @@
 
             const oldMood = catMood;
             catMood = Math.min(100, catMood + 10);
-            lastInteractionTime = Date.now();
+            lastInteractionTime = getNow();
             updateMoodUI();
 
             try {
@@ -2933,12 +2977,12 @@
                 activeAccessory = itemId; // equip automatically on buy
             } else if (itemType === 'coupon') {
                 const newReq = {
-                    id: 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    id: 'req_' + getNow() + '_' + Math.random().toString(36).substr(2, 5),
                     icon: '🛒',
                     title: `Купон из магазина: ${itemId}`,
                     details: `Цена: ${cost} монет. Куплено Любой.`,
                     status: 'pending',
-                    timestamp: Date.now(),
+                    timestamp: getNow(),
                     syncStatus: 'pending',
                     notificationStatus: 'pending'
                 };
