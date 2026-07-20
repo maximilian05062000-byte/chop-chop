@@ -2539,14 +2539,36 @@
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             
-            const yearDateStr = `${year}-${month}-${day}`;
-            const monthDayStr = `${day}-${month}`;
-            
-            const pathsToTry = [
-                `videos/${yearDateStr}.mp4`,
-                `videos/${monthDayStr}.mp4`,
-                `videos/default.mp4`
+            const pathsToTry = [];
+            const formats = [
+                `${year}-${month}-${day}`, // YYYY-MM-DD
+                `${year}.${month}.${day}`, // YYYY.MM.DD
+                `${day}-${month}-${year}`, // DD-MM-YYYY
+                `${day}.${month}.${year}`, // DD.MM.YYYY
+                `${day}-${month}`,         // DD-MM
+                `${day}.${month}`          // DD.MM
             ];
+            
+            formats.forEach(f => {
+                pathsToTry.push(`videos/${f}.mp4`);
+                pathsToTry.push(`videos/${f}.MP4`);
+                pathsToTry.push(`Videos/${f}.mp4`);
+                pathsToTry.push(`Videos/${f}.MP4`);
+                pathsToTry.push(`VIDEOS/${f}.mp4`);
+                pathsToTry.push(`VIDEOS/${f}.MP4`);
+                pathsToTry.push(`${f}.mp4`);
+                pathsToTry.push(`${f}.MP4`);
+            });
+            pathsToTry.push(`videos/default.mp4`);
+            pathsToTry.push(`videos/default.MP4`);
+            pathsToTry.push(`Videos/default.mp4`);
+            pathsToTry.push(`Videos/default.MP4`);
+            pathsToTry.push(`VIDEOS/default.mp4`);
+            pathsToTry.push(`VIDEOS/default.MP4`);
+            pathsToTry.push(`default.mp4`);
+            pathsToTry.push(`default.MP4`);
+            
+            console.log('Chop-Chopa TV looking for video in paths:', pathsToTry);
             
             let selectedPath = null;
             for (const path of pathsToTry) {
@@ -2564,7 +2586,7 @@
             
             if (selectedPath) {
                 if (videoContainer) videoContainer.style.display = 'block';
-                video.src = selectedPath;
+                video.src = selectedPath + '?t=' + getNow();
                 if (tvMessage) {
                     caption.innerHTML = `<div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Передача на сегодня (${day}.${month}.${year}) 📺✨</div><div style="font-size: 13px; line-height: 1.4; color: var(--text-color); margin-top: 8px; font-style: italic; white-space: pre-wrap;">« ${tvMessage} »</div>`;
                 } else {
