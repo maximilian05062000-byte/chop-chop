@@ -1523,6 +1523,7 @@
         let dailyQuest = '';
         let dailyReward = '';
         let dailyQuestCompleted = false;
+        let lastQuestCompletedDate = '';
         let coins = 0;
         let shopPurchases = [];
         let activeAccessory = null;
@@ -1655,6 +1656,14 @@
             return dateString;
         }
 
+        function getLocalDateString(timestamp) {
+            const date = timestamp ? new Date(timestamp) : new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
         // Show/Hide forms
         function showForm(formType) {
             hideForms();
@@ -1758,7 +1767,15 @@
                         tvMessage = (data.record && data.record.tvMessage) ? data.record.tvMessage : '';
                         dailyQuest = (data.record && data.record.dailyQuest) ? data.record.dailyQuest : '';
                         dailyReward = (data.record && data.record.dailyReward) ? data.record.dailyReward : '';
-                        dailyQuestCompleted = (data.record && data.record.dailyQuestCompleted) ? !!data.record.dailyQuestCompleted : false;
+                        lastQuestCompletedDate = (data.record && data.record.lastQuestCompletedDate) ? data.record.lastQuestCompletedDate : '';
+                        
+                        const todayStr = getLocalDateString(getNow());
+                        if (lastQuestCompletedDate !== todayStr) {
+                            dailyQuestCompleted = false;
+                        } else {
+                            dailyQuestCompleted = (data.record && data.record.dailyQuestCompleted) ? !!data.record.dailyQuestCompleted : false;
+                        }
+                        
                         coins = (data.record && typeof data.record.coins === 'number') ? data.record.coins : 0;
                         shopPurchases = (data.record && Array.isArray(data.record.shopPurchases)) ? data.record.shopPurchases : [];
                         activeAccessory = (data.record && data.record.activeAccessory) ? data.record.activeAccessory : null;
@@ -1782,6 +1799,7 @@
                         localStorage.setItem('daily_quest_fallback', dailyQuest);
                         localStorage.setItem('daily_reward_fallback', dailyReward);
                         localStorage.setItem('daily_quest_completed_fallback', dailyQuestCompleted ? 'true' : 'false');
+                        localStorage.setItem('last_quest_completed_date_fallback', lastQuestCompletedDate);
                         localStorage.setItem('coins_fallback', coins);
                         localStorage.setItem('shop_purchases_fallback', JSON.stringify(shopPurchases));
                         localStorage.setItem('active_accessory_fallback', activeAccessory || '');
@@ -1852,7 +1870,13 @@
             tvMessage = localStorage.getItem('tv_message_fallback') || '';
             dailyQuest = localStorage.getItem('daily_quest_fallback') || '';
             dailyReward = localStorage.getItem('daily_reward_fallback') || '';
-            dailyQuestCompleted = localStorage.getItem('daily_quest_completed_fallback') === 'true';
+            lastQuestCompletedDate = localStorage.getItem('last_quest_completed_date_fallback') || '';
+            const todayStr = getLocalDateString(getNow());
+            if (lastQuestCompletedDate !== todayStr) {
+                dailyQuestCompleted = false;
+            } else {
+                dailyQuestCompleted = localStorage.getItem('daily_quest_completed_fallback') === 'true';
+            }
             coins = parseInt(localStorage.getItem('coins_fallback') || '0', 10);
             try {
                 shopPurchases = JSON.parse(localStorage.getItem('shop_purchases_fallback') || '[]');
@@ -1884,6 +1908,7 @@
                             if (dbData.tvMessage !== undefined) tvMessage = dbData.tvMessage;
                             if (dbData.catStatus !== undefined) catStatus = dbData.catStatus;
                             if (typeof dbData.dailyQuestCoins === 'number') dailyQuestCoins = dbData.dailyQuestCoins;
+                            if (dbData.lastQuestCompletedDate !== undefined) lastQuestCompletedDate = dbData.lastQuestCompletedDate;
                         }
                         
                         // 2. Update clock drift from serverTime
@@ -1924,6 +1949,7 @@
             localStorage.setItem('daily_quest_fallback', dailyQuest);
             localStorage.setItem('daily_reward_fallback', dailyReward);
             localStorage.setItem('daily_quest_completed_fallback', dailyQuestCompleted ? 'true' : 'false');
+            localStorage.setItem('last_quest_completed_date_fallback', lastQuestCompletedDate);
             localStorage.setItem('coins_fallback', coins);
             localStorage.setItem('shop_purchases_fallback', JSON.stringify(shopPurchases));
             localStorage.setItem('active_accessory_fallback', activeAccessory || '');
@@ -1944,6 +1970,7 @@
                         dailyQuest: dailyQuest,
                         dailyReward: dailyReward,
                         dailyQuestCompleted: dailyQuestCompleted,
+                        lastQuestCompletedDate: lastQuestCompletedDate,
                         coins: coins,
                         shopPurchases: shopPurchases,
                         activeAccessory: activeAccessory,
@@ -2784,8 +2811,10 @@
             
             // Setting a new quest text resets completion status by default
             const oldCompleted = dailyQuestCompleted;
+            const oldCompletedDate = lastQuestCompletedDate;
             if (qText !== dailyQuest) {
                 dailyQuestCompleted = false;
+                lastQuestCompletedDate = '';
             }
             
             dailyQuest = qText;
@@ -2803,13 +2832,17 @@
                 dailyReward = oldReward;
                 dailyQuestCoins = oldCoins;
                 dailyQuestCompleted = oldCompleted;
+                lastQuestCompletedDate = oldCompletedDate;
                 showToast('Не удалось сохранить квест!');
             }
         }
 
         async function resetQuest() {
             if (isSaving) return;
+            const oldCompleted = dailyQuestCompleted;
+            const oldCompletedDate = lastQuestCompletedDate;
             dailyQuestCompleted = false;
+            lastQuestCompletedDate = '';
             try {
                 await saveRequestsToServer();
                 showToast('Выполнение квеста сброшено!');
@@ -2817,7 +2850,8 @@
                 renderQuestCard();
             } catch (err) {
                 console.error('Error resetting quest:', err);
-                dailyQuestCompleted = true;
+                dailyQuestCompleted = oldCompleted;
+                lastQuestCompletedDate = oldCompletedDate;
                 showToast('Не удалось сбросить квест!');
             }
         }
@@ -2876,8 +2910,12 @@
         async function completeQuest() {
             if (isSaving || dailyQuestCompleted) return;
             
-            dailyQuestCompleted = true;
+            const oldCompleted = dailyQuestCompleted;
+            const oldCompletedDate = lastQuestCompletedDate;
             const oldCoins = coins;
+            
+            dailyQuestCompleted = true;
+            lastQuestCompletedDate = getLocalDateString(getNow());
             coins += dailyQuestCoins;
             
             renderQuestCard();
@@ -2895,7 +2933,8 @@
                 sendQuestCompletionNotification();
             } catch (err) {
                 console.error('Error completing quest:', err);
-                dailyQuestCompleted = false;
+                dailyQuestCompleted = oldCompleted;
+                lastQuestCompletedDate = oldCompletedDate;
                 coins = oldCoins;
                 renderQuestCard();
                 renderShop();
