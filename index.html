@@ -956,6 +956,30 @@
         .quest-complete-btn:active {
             transform: translateY(0);
         }
+        .quest-reroll-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px dashed rgba(168, 85, 247, 0.4);
+            border-radius: 12px;
+            color: #d8b4fe;
+            padding: 10px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .quest-reroll-btn:hover {
+            background: rgba(168, 85, 247, 0.1);
+            border-color: rgba(236, 72, 153, 0.6);
+            color: white;
+            transform: translateY(-1px);
+        }
+        .quest-reroll-btn:active {
+            transform: translateY(0);
+        }
         .quest-card.completed {
             border-color: rgba(34, 197, 94, 0.3);
             background: linear-gradient(135deg, rgba(34, 197, 94, 0.04) 0%, rgba(168, 85, 247, 0.04) 100%);
@@ -1215,6 +1239,22 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Quest Queue editor -->
+            <div style="margin-top: 12px; border-top: 1px dashed rgba(239, 68, 68, 0.2); padding-top: 10px; text-align: left;">
+                <label style="color: #f87171; font-size: 10px; margin-bottom: 6px; display: block;">Очередь квестов (авто-запуск по дням):</label>
+                <div id="adminQueueList" style="display: flex; flex-direction: column; gap: 4px; max-height: 100px; overflow-y: auto; margin-bottom: 6px; padding: 4px; border: 1px solid rgba(239, 68, 68, 0.1); border-radius: 6px; background: rgba(0, 0, 0, 0.2);">
+                    <!-- Will be populated by JS -->
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <input type="text" id="adminQueueInput" placeholder="Что нужно сделать (квест)?" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 6px 10px; color: white; font-size: 11px; outline: none;">
+                    <input type="text" id="adminQueueRewardInput" placeholder="Что Люба получит (награда)?" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 6px 10px; color: white; font-size: 11px; outline: none;">
+                    <input type="number" id="adminQueueCoinsInput" placeholder="Награда в монетках (по умолчанию 15)?" min="0" style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 6px 10px; color: white; font-size: 11px; outline: none;">
+                    <div style="display: flex; justify-content: flex-end; margin-top: 2px;">
+                        <button class="admin-btn" onclick="addQuestToQueue()" style="background: #10b981;">Добавить в очередь</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Floating Cat SVG in Wrapper -->
@@ -1317,6 +1357,37 @@
                         <circle cx="95" cy="46" r="2" fill="#10b981" />
                         <circle cx="110" cy="44" r="2" fill="#ef4444" />
                         <circle cx="125" cy="46" r="2" fill="#10b981" />
+                    </g>
+                    <g id="acc-scarf" style="display: none;">
+                        <path d="M 75 118 Q 110 134 145 118 C 150 128, 142 135, 110 135 Q 78 135 75 118 Z" fill="#ef4444" stroke="#b91c1c" stroke-width="2" />
+                        <path d="M 125 128 Q 130 152 142 158 C 146 160, 152 154, 146 148 Q 138 142 135 128 Z" fill="#dc2626" stroke="#b91c1c" stroke-width="1.5" />
+                        <line x1="142" y1="158" x2="144" y2="163" stroke="#fca5a5" stroke-width="1.5" />
+                        <line x1="144" y1="158" x2="147" y2="163" stroke="#fca5a5" stroke-width="1.5" />
+                        <line x1="146" y1="157" x2="150" y2="162" stroke="#fca5a5" stroke-width="1.5" />
+                    </g>
+                    <g id="acc-heart-headband" style="display: none;">
+                        <path d="M 78 52 A 40 40 0 0 1 142 52" fill="none" stroke="#111827" stroke-width="3" />
+                        <line x1="90" y1="36" x2="90" y2="20" stroke="#374151" stroke-width="2" />
+                        <path d="M 90 20 C 85 15, 80 20, 90 26 C 100 20, 95 15, 90 20 Z" fill="#ec4899" stroke="#db2777" stroke-width="1" />
+                        <line x1="130" y1="36" x2="130" y2="20" stroke="#374151" stroke-width="2" />
+                        <path d="M 130 20 C 125 15, 120 20, 130 26 C 140 20, 135 15, 130 20 Z" fill="#ec4899" stroke="#db2777" stroke-width="1" />
+                    </g>
+                    <g id="acc-detective-hat" style="display: none;">
+                        <path d="M 70 52 C 70 18, 150 18, 150 52 Z" fill="#a16207" stroke="#78350f" stroke-width="2" />
+                        <path d="M 60 52 Q 100 48 110 52 L 68 52 Z" fill="#854d0e" stroke="#78350f" stroke-width="1.5" />
+                        <path d="M 110 52 Q 120 48 160 52 L 152 52 Z" fill="#854d0e" stroke="#78350f" stroke-width="1.5" />
+                        <path d="M 103 26 C 103 21, 117 21, 117 26 Z" fill="#451a03" />
+                        <path d="M 90 52 L 95 38 L 125 38 L 130 52 Z" fill="#713f12" stroke="#451a03" stroke-width="1" />
+                    </g>
+                    <g id="acc-monocle" style="display: none;">
+                        <circle cx="65" cy="95" r="22" fill="none" stroke="#fbbf24" stroke-width="3" />
+                        <path d="M 50 90 A 20 20 0 0 1 80 90" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.6" />
+                        <path d="M 87 95 Q 102 110 110 120" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="2 2" />
+                    </g>
+                    <g id="acc-santa-hat" style="display: none;">
+                        <path d="M 72 50 C 80 15, 120 8, 140 25 C 145 28, 146 36, 142 42 L 130 45 Z" fill="#ef4444" stroke="#b91c1c" stroke-width="1.5" />
+                        <rect x="66" y="44" width="76" height="10" rx="5" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.5" />
+                        <circle cx="143" cy="43" r="8" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.5" />
                     </g>
                 </svg>
             </div>
@@ -1516,6 +1587,14 @@
         // Database & Proxy Config (Google Apps Script Web App URL)
         const PROXY_URL = 'https://script.google.com/macros/s/AKfycbwr-4s0z6w4Pf4R06QW5Amjp_f7MJ2yCtvP73-8807aKOf_so8NY_x1_NNwOGZOE9x-/exec';
         const BIN_ID = '6a4d7e6df5f4af5e296ec46b';
+        const PREDEFINED_QUESTS = [
+            "Сделать 5 глубоких вдохов и выпить стакан чистой воды",
+            "Побаловать себя чашкой любимого чая/кофе или вкусняшкой",
+            "Сделать легкую разминку или прогуляться 15 минут",
+            "Назвать 3 вещи, за которые ты благодарна сегодняшнему дню",
+            "Погладить Чоп-Чопу на экране 15 раз подряд",
+            "Послушать любимую песню с закрытыми глазами"
+        ];
 
         let requestsData = [];
         let localVersion = 0;
@@ -1524,7 +1603,11 @@
         let dailyReward = '';
         let dailyQuestCompleted = false;
         let lastQuestCompletedDate = '';
+        let lastQuestActiveDate = '';
         let coins = 0;
+        let questQueue = [];
+        let rerollsUsedToday = 0;
+        let lastRerollDate = '';
         let shopPurchases = [];
         let activeAccessory = null;
         let dailyQuestCoins = 15;
@@ -1768,18 +1851,49 @@
                         dailyQuest = (data.record && data.record.dailyQuest) ? data.record.dailyQuest : '';
                         dailyReward = (data.record && data.record.dailyReward) ? data.record.dailyReward : '';
                         lastQuestCompletedDate = (data.record && data.record.lastQuestCompletedDate) ? data.record.lastQuestCompletedDate : '';
+                        lastQuestActiveDate = (data.record && data.record.lastQuestActiveDate) ? data.record.lastQuestActiveDate : '';
                         
                         const todayStr = getLocalDateString(getNow());
-                        if (lastQuestCompletedDate !== todayStr) {
+                        let questRolloverTriggered = false;
+                        
+                        if (lastQuestActiveDate !== todayStr) {
+                            lastQuestActiveDate = todayStr;
                             dailyQuestCompleted = false;
+                            
+                            // Pop from queue or fallback
+                            const storedQueue = (data.record && Array.isArray(data.record.questQueue)) ? data.record.questQueue : [];
+                            if (storedQueue.length > 0) {
+                                dailyQuest = storedQueue.shift();
+                                questQueue = storedQueue;
+                                dailyQuestCoins = 15;
+                                dailyReward = '';
+                            } else {
+                                const randIdx = Math.floor(Math.random() * PREDEFINED_QUESTS.length);
+                                dailyQuest = PREDEFINED_QUESTS[randIdx];
+                                dailyQuestCoins = 15;
+                                dailyReward = '';
+                            }
+                            questRolloverTriggered = true;
                         } else {
-                            dailyQuestCompleted = (data.record && data.record.dailyQuestCompleted) ? !!data.record.dailyQuestCompleted : false;
+                            if (lastQuestCompletedDate !== todayStr) {
+                                dailyQuestCompleted = false;
+                            } else {
+                                dailyQuestCompleted = (data.record && data.record.dailyQuestCompleted) ? !!data.record.dailyQuestCompleted : false;
+                            }
                         }
                         
                         coins = (data.record && typeof data.record.coins === 'number') ? data.record.coins : 0;
                         shopPurchases = (data.record && Array.isArray(data.record.shopPurchases)) ? data.record.shopPurchases : [];
                         activeAccessory = (data.record && data.record.activeAccessory) ? data.record.activeAccessory : null;
                         dailyQuestCoins = (data.record && typeof data.record.dailyQuestCoins === 'number') ? data.record.dailyQuestCoins : 15;
+                        
+                        questQueue = (data.record && Array.isArray(data.record.questQueue)) ? data.record.questQueue : [];
+                        lastRerollDate = (data.record && data.record.lastRerollDate) ? data.record.lastRerollDate : '';
+                        if (lastRerollDate !== todayStr) {
+                            rerollsUsedToday = 0;
+                        } else {
+                            rerollsUsedToday = (data.record && typeof data.record.rerollsUsedToday === 'number') ? data.record.rerollsUsedToday : 0;
+                        }
                         
                         const dbMood = (data.record && typeof data.record.catMood === 'number') ? data.record.catMood : 80;
                         const dbInteractionTime = (data.record && typeof data.record.lastInteractionTime === 'number') 
@@ -1800,10 +1914,20 @@
                         localStorage.setItem('daily_reward_fallback', dailyReward);
                         localStorage.setItem('daily_quest_completed_fallback', dailyQuestCompleted ? 'true' : 'false');
                         localStorage.setItem('last_quest_completed_date_fallback', lastQuestCompletedDate);
+                        localStorage.setItem('last_quest_active_date_fallback', lastQuestActiveDate);
                         localStorage.setItem('coins_fallback', coins);
                         localStorage.setItem('shop_purchases_fallback', JSON.stringify(shopPurchases));
                         localStorage.setItem('active_accessory_fallback', activeAccessory || '');
                         localStorage.setItem('daily_quest_coins_fallback', dailyQuestCoins);
+                        localStorage.setItem('quest_queue_fallback', JSON.stringify(questQueue));
+                        localStorage.setItem('rerolls_used_today_fallback', rerollsUsedToday);
+                        localStorage.setItem('last_reroll_date_fallback', lastRerollDate);
+                        
+                        if (questRolloverTriggered) {
+                            setTimeout(() => {
+                                saveRequestsToServer();
+                            }, 800);
+                        }
                         
                         applyCatStatus();
                         updateMoodUI();
@@ -1819,6 +1943,7 @@
                             if (qReward) qReward.value = dailyReward;
                             if (qCoins) qCoins.value = dailyQuestCoins;
                             updateAdminQuestStatusUI();
+                            renderAdminQueue();
                         }
                         renderQuestCard();
                         renderShop();
@@ -1838,6 +1963,7 @@
                         if (isAdmin) {
                             updateAdminStatusButtons();
                             updateAdminQuestStatusUI();
+                            renderAdminQueue();
                         }
                         renderQuestCard();
                         renderShop();
@@ -1854,6 +1980,7 @@
                     if (isAdmin) {
                         updateAdminStatusButtons();
                         updateAdminQuestStatusUI();
+                        renderAdminQueue();
                     }
                     renderQuestCard();
                     renderShop();
@@ -1871,6 +1998,7 @@
             dailyQuest = localStorage.getItem('daily_quest_fallback') || '';
             dailyReward = localStorage.getItem('daily_reward_fallback') || '';
             lastQuestCompletedDate = localStorage.getItem('last_quest_completed_date_fallback') || '';
+            lastQuestActiveDate = localStorage.getItem('last_quest_active_date_fallback') || '';
             const todayStr = getLocalDateString(getNow());
             if (lastQuestCompletedDate !== todayStr) {
                 dailyQuestCompleted = false;
@@ -1885,6 +2013,18 @@
             }
             activeAccessory = localStorage.getItem('active_accessory_fallback') || null;
             dailyQuestCoins = parseInt(localStorage.getItem('daily_quest_coins_fallback') || '15', 10);
+            
+            try {
+                questQueue = JSON.parse(localStorage.getItem('quest_queue_fallback') || '[]');
+            } catch (e) {
+                questQueue = [];
+            }
+            lastRerollDate = localStorage.getItem('last_reroll_date_fallback') || '';
+            if (lastRerollDate !== todayStr) {
+                rerollsUsedToday = 0;
+            } else {
+                rerollsUsedToday = parseInt(localStorage.getItem('rerolls_used_today_fallback') || '0', 10);
+            }
             
             const hoursPassed = (getNow() - lastInteractionTime) / (1000 * 60 * 60);
             catMood = Math.max(10, Math.round(catMood - hoursPassed * 1));
@@ -1909,6 +2049,8 @@
                             if (dbData.catStatus !== undefined) catStatus = dbData.catStatus;
                             if (typeof dbData.dailyQuestCoins === 'number') dailyQuestCoins = dbData.dailyQuestCoins;
                             if (dbData.lastQuestCompletedDate !== undefined) lastQuestCompletedDate = dbData.lastQuestCompletedDate;
+                            if (dbData.lastQuestActiveDate !== undefined) lastQuestActiveDate = dbData.lastQuestActiveDate;
+                            if (dbData.questQueue !== undefined) questQueue = dbData.questQueue;
                         }
                         
                         // 2. Update clock drift from serverTime
@@ -1950,10 +2092,14 @@
             localStorage.setItem('daily_reward_fallback', dailyReward);
             localStorage.setItem('daily_quest_completed_fallback', dailyQuestCompleted ? 'true' : 'false');
             localStorage.setItem('last_quest_completed_date_fallback', lastQuestCompletedDate);
+            localStorage.setItem('last_quest_active_date_fallback', lastQuestActiveDate);
             localStorage.setItem('coins_fallback', coins);
             localStorage.setItem('shop_purchases_fallback', JSON.stringify(shopPurchases));
             localStorage.setItem('active_accessory_fallback', activeAccessory || '');
             localStorage.setItem('daily_quest_coins_fallback', dailyQuestCoins);
+            localStorage.setItem('quest_queue_fallback', JSON.stringify(questQueue));
+            localStorage.setItem('rerolls_used_today_fallback', rerollsUsedToday);
+            localStorage.setItem('last_reroll_date_fallback', lastRerollDate);
             
             try {
                 const response = await fetch(`${PROXY_URL}?path=db`, {
@@ -1971,10 +2117,14 @@
                         dailyReward: dailyReward,
                         dailyQuestCompleted: dailyQuestCompleted,
                         lastQuestCompletedDate: lastQuestCompletedDate,
+                        lastQuestActiveDate: lastQuestActiveDate,
                         coins: coins,
                         shopPurchases: shopPurchases,
                         activeAccessory: activeAccessory,
-                        dailyQuestCoins: dailyQuestCoins
+                        dailyQuestCoins: dailyQuestCoins,
+                        questQueue: questQueue,
+                        rerollsUsedToday: rerollsUsedToday,
+                        lastRerollDate: lastRerollDate
                     })
                 });
                 if (!response.ok) {
@@ -2798,6 +2948,81 @@
             }
         }
 
+        function renderAdminQueue() {
+            const container = document.getElementById('adminQueueList');
+            if (!container) return;
+            if (!questQueue || questQueue.length === 0) {
+                container.innerHTML = `<span style="color: rgba(255, 255, 255, 0.4); font-size: 10px; padding: 4px;">Очередь пуста. Будут выбираться случайные квесты заботы.</span>`;
+                return;
+            }
+            
+            container.innerHTML = questQueue.map((item, index) => {
+                const qText = typeof item === 'string' ? item : item.quest;
+                const qReward = (typeof item === 'object' && item.reward) ? item.reward : '';
+                const qCoins = (typeof item === 'object' && typeof item.coins === 'number') ? item.coins : 15;
+                const rewardStr = qReward ? ` (Награда: ${qReward}, 🪙 ${qCoins})` : ` (🪙 ${qCoins})`;
+                
+                return `
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.05); padding: 4px 8px; border-radius: 6px; gap: 6px; margin-bottom: 2px;">
+                        <span style="color: white; font-size: 10px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; flex: 1;" title="${qText}${rewardStr}">${index + 1}. ${qText}${rewardStr}</span>
+                        <button onclick="removeQuestFromQueue(${index})" style="background: none; border: none; color: #ef4444; font-size: 12px; font-weight: bold; cursor: pointer; padding: 0 4px;">×</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function addQuestToQueue() {
+            const input = document.getElementById('adminQueueInput');
+            const rewardInput = document.getElementById('adminQueueRewardInput');
+            const coinsInput = document.getElementById('adminQueueCoinsInput');
+            if (!input) return;
+            
+            const questText = input.value.trim();
+            if (!questText) return;
+            
+            const rewardText = rewardInput ? rewardInput.value.trim() : '';
+            const coinsVal = coinsInput ? coinsInput.value.trim() : '';
+            const qCoins = coinsVal !== '' ? Math.max(0, parseInt(coinsVal, 10)) : 15;
+            
+            const newItem = {
+                quest: questText,
+                reward: rewardText,
+                coins: qCoins
+            };
+            
+            questQueue.push(newItem);
+            input.value = '';
+            if (rewardInput) rewardInput.value = '';
+            if (coinsInput) coinsInput.value = '';
+            
+            renderAdminQueue();
+            
+            try {
+                await saveRequestsToServer();
+                showToast('Квест добавлен в очередь!');
+            } catch (err) {
+                console.error('Error adding quest to queue:', err);
+                questQueue.pop();
+                renderAdminQueue();
+                showToast('Ошибка добавления квеста!');
+            }
+        }
+
+        async function removeQuestFromQueue(index) {
+            const removed = questQueue.splice(index, 1);
+            renderAdminQueue();
+            
+            try {
+                await saveRequestsToServer();
+                showToast('Квест удален из очереди!');
+            } catch (err) {
+                console.error('Error removing quest from queue:', err);
+                questQueue.splice(index, 0, removed[0]);
+                renderAdminQueue();
+                showToast('Ошибка удаления квеста!');
+            }
+        }
+
         async function saveQuest() {
             if (isSaving) return;
             const qText = document.getElementById('adminQuestText').value.trim();
@@ -2812,10 +3037,12 @@
             // Setting a new quest text resets completion status by default
             const oldCompleted = dailyQuestCompleted;
             const oldCompletedDate = lastQuestCompletedDate;
+            const oldActiveDate = lastQuestActiveDate;
             if (qText !== dailyQuest) {
                 dailyQuestCompleted = false;
                 lastQuestCompletedDate = '';
             }
+            lastQuestActiveDate = getLocalDateString(getNow());
             
             dailyQuest = qText;
             dailyReward = qReward;
@@ -2833,6 +3060,7 @@
                 dailyQuestCoins = oldCoins;
                 dailyQuestCompleted = oldCompleted;
                 lastQuestCompletedDate = oldCompletedDate;
+                lastQuestActiveDate = oldActiveDate;
                 showToast('Не удалось сохранить квест!');
             }
         }
@@ -2841,8 +3069,10 @@
             if (isSaving) return;
             const oldCompleted = dailyQuestCompleted;
             const oldCompletedDate = lastQuestCompletedDate;
+            const oldActiveDate = lastQuestActiveDate;
             dailyQuestCompleted = false;
             lastQuestCompletedDate = '';
+            lastQuestActiveDate = getLocalDateString(getNow());
             try {
                 await saveRequestsToServer();
                 showToast('Выполнение квеста сброшено!');
@@ -2852,6 +3082,7 @@
                 console.error('Error resetting quest:', err);
                 dailyQuestCompleted = oldCompleted;
                 lastQuestCompletedDate = oldCompletedDate;
+                lastQuestActiveDate = oldActiveDate;
                 showToast('Не удалось сбросить квест!');
             }
         }
@@ -2889,6 +3120,7 @@
                     </div>
                 `;
             } else {
+                const costText = rerollsUsedToday === 0 ? 'Заменить (Бесплатно)' : 'Заменить (5 🪙)';
                 container.innerHTML = `
                     <div class="quest-card">
                         <div class="quest-title-row">
@@ -2899,9 +3131,14 @@
                         <div class="quest-reward">
                             ${rewardHtml}
                         </div>
-                        <button class="quest-complete-btn" onclick="completeQuest()">
-                            <span>✨ Выполнить квест</span>
-                        </button>
+                        <div style="display: flex; gap: 8px; margin-top: 15px; width: 100%;">
+                            <button class="quest-complete-btn" style="flex: 1;" onclick="completeQuest()">
+                                <span>✨ Выполнить</span>
+                            </button>
+                            <button class="quest-reroll-btn" onclick="rerollQuest()">
+                                <span>🎲 ${costText}</span>
+                            </button>
+                        </div>
                     </div>
                 `;
             }
@@ -2942,6 +3179,61 @@
                     updateAdminQuestStatusUI();
                 }
                 showToast('Ошибка при сохранении выполнения квеста!');
+            }
+        }
+
+        async function rerollQuest() {
+            if (isSaving || dailyQuestCompleted) return;
+            
+            const cost = rerollsUsedToday === 0 ? 0 : 5;
+            if (coins < cost) {
+                showToast('Недостаточно монет для замены квеста! 🪙');
+                return;
+            }
+            
+            const oldCoins = coins;
+            const oldRerolls = rerollsUsedToday;
+            const oldQuest = dailyQuest;
+            const oldLastRerollDate = lastRerollDate;
+            
+            // Choose a new random quest from predefined list
+            const filtered = PREDEFINED_QUESTS.filter(q => q !== dailyQuest);
+            if (filtered.length === 0) {
+                showToast('Нет доступных квестов для замены!');
+                return;
+            }
+            const nextQuest = filtered[Math.floor(Math.random() * filtered.length)];
+            
+            coins -= cost;
+            rerollsUsedToday++;
+            lastRerollDate = getLocalDateString(getNow());
+            dailyQuest = nextQuest;
+            
+            renderQuestCard();
+            renderShop();
+            if (isAdmin) {
+                updateAdminQuestStatusUI();
+            }
+            
+            try {
+                await saveRequestsToServer();
+                if (cost > 0) {
+                    showToast(`Квест заменен! Списано 🪙 ${cost} монет.`);
+                } else {
+                    showToast('Квест успешно заменен бесплатно!');
+                }
+            } catch (err) {
+                console.error('Error rerolling quest:', err);
+                coins = oldCoins;
+                rerollsUsedToday = oldRerolls;
+                dailyQuest = oldQuest;
+                lastRerollDate = oldLastRerollDate;
+                renderQuestCard();
+                renderShop();
+                if (isAdmin) {
+                    updateAdminQuestStatusUI();
+                }
+                showToast('Ошибка при сохранении замены квеста!');
             }
         }
 
@@ -3000,7 +3292,7 @@
 
         /* --- Shop Logic JS Methods --- */
         function updateCatAccessoryUI() {
-            const accs = ['bowtie', 'sunglasses', 'chain', 'crown'];
+            const accs = ['bowtie', 'sunglasses', 'chain', 'crown', 'scarf', 'heart-headband', 'detective-hat', 'monocle', 'santa-hat'];
             accs.forEach(acc => {
                 const el = document.getElementById('acc-' + acc);
                 if (el) el.style.display = 'none';
@@ -3111,8 +3403,13 @@
         async function sendAccessoryPurchaseNotification(accId, cost) {
             const accNames = {
                 bowtie: 'Галстук-бабочка 🎀',
+                scarf: 'Зимний теплый шарфик 🧣',
+                'heart-headband': 'Ободок с сердечками 💖',
                 sunglasses: 'Крутые очки 😎',
+                monocle: 'Стильный монокль 🧐',
+                'santa-hat': 'Колпак Санты 🧑‍🎄',
                 chain: 'Золотая цепочка 🪙',
+                'detective-hat': 'Шляпа детектива 🕵️‍♂️',
                 crown: 'Королевская корона 👑'
             };
             const accName = accNames[accId] || accId;
@@ -3168,18 +3465,25 @@
             container.style.display = 'block';
             
             const coupons = [
-                { id: 'taxi', name: 'Поездка на такси за мой счет 🚖', desc: 'Максим заказывает и оплачивает поездку на такси через Yandex Go.', cost: 50 },
                 { id: 'phone', name: 'Пополнение баланса телефона 📱', desc: 'Пополнение баланса мобильного или домашнего интернета.', cost: 40 },
+                { id: 'taxi', name: 'Поездка на такси за мой счет 🚖', desc: 'Максим заказывает и оплачивает поездку на такси через Yandex Go.', cost: 50 },
                 { id: 'ticket', name: 'Билет в кино / на выставку 🎟️', desc: 'Билет на любой сеанс в кино или выставку в твоем городе.', cost: 60 },
                 { id: 'subscription', name: 'Оплата подписки на месяц 💳', desc: 'Оплата Яндекс.Плюс, TG Premium, MyBook или другого сервиса.', cost: 70 },
                 { id: 'marketplace', name: 'Сертификат на маркетплейс 🎁', desc: 'Цифровой сертификат в Ozon, WB или Золотое Яблоко.', cost: 120 },
+                { id: 'massage', name: 'Сертификат на массаж 🙋‍♀️', desc: 'Максим оплачивает сеанс профессионального массажа в твоем городе.', cost: 150 },
+                { id: 'cleaning', name: 'Заказ профессионального клининга 🧹', desc: 'Максим оплачивает генеральную уборку твоей квартиры, чтобы ты отдохнула.', cost: 220 },
                 { id: 'spa', name: 'Сертификат в SPA-салон 🧖‍♀️', desc: 'Электронный сертификат в хороший SPA или массажный салон.', cost: 250 }
             ];
             
             const accessories = [
                 { id: 'bowtie', name: 'Галстук-бабочка 🎀', desc: 'Стильный розовый галстук-бабочка на шею Чоп-Чопы.', cost: 25 },
+                { id: 'scarf', name: 'Зимний теплый шарфик 🧣', desc: 'Уютный вязаный шарф на шею для тепла и стиля.', cost: 30 },
+                { id: 'heart-headband', name: 'Ободок с сердечками 💖', desc: 'Милый ободок с пружинящими сердечками на голову.', cost: 35 },
                 { id: 'sunglasses', name: 'Крутые очки 😎', desc: 'Модные темные очки для дерзкого взгляда.', cost: 40 },
-                { id: 'chain', name: 'Золотая цепочка ✨', desc: 'Массиввная рэперская цепь с золотым медальоном.', cost: 60 },
+                { id: 'monocle', name: 'Стильный монокль 🧐', desc: 'Джентльменский монокль с золотой цепочкой.', cost: 45 },
+                { id: 'santa-hat', name: 'Колпак Санты 🧑‍🎄', desc: 'Праздничный красный колпак с пушистым помпоном.', cost: 50 },
+                { id: 'chain', name: 'Золотая цепочка ✨', desc: 'Массивная рэперская цепь с золотым медальоном.', cost: 60 },
+                { id: 'detective-hat', name: 'Шляпа детектива 🕵️‍♂️', desc: 'Классическая клетчатая кепка Шерлока Холмса.', cost: 75 },
                 { id: 'crown', name: 'Королевская корона 👑', desc: 'Роскошная золотая корона с драгоценными камнями.', cost: 120 }
             ];
             
