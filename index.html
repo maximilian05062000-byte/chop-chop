@@ -1848,8 +1848,25 @@
                         
                         catStatus = (data.record && data.record.catStatus) ? data.record.catStatus : 'normal';
                         tvMessage = (data.record && data.record.tvMessage) ? data.record.tvMessage : '';
-                        dailyQuest = (data.record && data.record.dailyQuest) ? data.record.dailyQuest : '';
-                        dailyReward = (data.record && data.record.dailyReward) ? data.record.dailyReward : '';
+                        
+                        let rawQuest = (data.record && data.record.dailyQuest) ? data.record.dailyQuest : '';
+                        if (typeof rawQuest === 'object' && rawQuest !== null) {
+                            dailyQuest = rawQuest.quest || '';
+                            dailyQuestCoins = typeof rawQuest.coins === 'number' ? rawQuest.coins : 15;
+                            dailyReward = rawQuest.reward || '';
+                        } else {
+                            dailyQuest = rawQuest;
+                            dailyReward = (data.record && data.record.dailyReward) ? data.record.dailyReward : '';
+                            dailyQuestCoins = (data.record && typeof data.record.dailyQuestCoins === 'number') ? data.record.dailyQuestCoins : 15;
+                        }
+                        
+                        if (dailyQuest === '[object Object]') {
+                            const randIdx = Math.floor(Math.random() * PREDEFINED_QUESTS.length);
+                            dailyQuest = PREDEFINED_QUESTS[randIdx];
+                            dailyQuestCoins = 15;
+                            dailyReward = '';
+                        }
+                        
                         lastQuestCompletedDate = (data.record && data.record.lastQuestCompletedDate) ? data.record.lastQuestCompletedDate : '';
                         lastQuestActiveDate = (data.record && data.record.lastQuestActiveDate) ? data.record.lastQuestActiveDate : '';
                         
@@ -1863,10 +1880,21 @@
                             // Pop from queue or fallback
                             const storedQueue = (data.record && Array.isArray(data.record.questQueue)) ? data.record.questQueue : [];
                             if (storedQueue.length > 0) {
-                                dailyQuest = storedQueue.shift();
+                                const popped = storedQueue.shift();
                                 questQueue = storedQueue;
-                                dailyQuestCoins = 15;
-                                dailyReward = '';
+                                if (typeof popped === 'string') {
+                                    dailyQuest = popped;
+                                    dailyQuestCoins = 15;
+                                    dailyReward = '';
+                                } else if (popped && typeof popped === 'object') {
+                                    dailyQuest = popped.quest || '';
+                                    dailyQuestCoins = typeof popped.coins === 'number' ? popped.coins : 15;
+                                    dailyReward = popped.reward || '';
+                                } else {
+                                    dailyQuest = '';
+                                    dailyQuestCoins = 15;
+                                    dailyReward = '';
+                                }
                             } else {
                                 const randIdx = Math.floor(Math.random() * PREDEFINED_QUESTS.length);
                                 dailyQuest = PREDEFINED_QUESTS[randIdx];
@@ -1996,7 +2024,14 @@
             lastInteractionTime = parseInt(localStorage.getItem('cat_last_interaction_fallback') || getNow().toString(), 10);
             tvMessage = localStorage.getItem('tv_message_fallback') || '';
             dailyQuest = localStorage.getItem('daily_quest_fallback') || '';
-            dailyReward = localStorage.getItem('daily_reward_fallback') || '';
+            if (dailyQuest === '[object Object]') {
+                const randIdx = Math.floor(Math.random() * PREDEFINED_QUESTS.length);
+                dailyQuest = PREDEFINED_QUESTS[randIdx];
+                dailyQuestCoins = 15;
+                dailyReward = '';
+            } else {
+                dailyReward = localStorage.getItem('daily_reward_fallback') || '';
+            }
             lastQuestCompletedDate = localStorage.getItem('last_quest_completed_date_fallback') || '';
             lastQuestActiveDate = localStorage.getItem('last_quest_active_date_fallback') || '';
             const todayStr = getLocalDateString(getNow());
@@ -2043,11 +2078,24 @@
                         
                         // 1. If not admin, do not overwrite admin fields
                         if (!isAdmin) {
-                            if (dbData.dailyQuest !== undefined) dailyQuest = dbData.dailyQuest;
-                            if (dbData.dailyReward !== undefined) dailyReward = dbData.dailyReward;
+                            let rawDbQuest = dbData.dailyQuest;
+                            if (typeof rawDbQuest === 'object' && rawDbQuest !== null) {
+                                dailyQuest = rawDbQuest.quest || '';
+                                dailyQuestCoins = typeof rawDbQuest.coins === 'number' ? rawDbQuest.coins : 15;
+                                dailyReward = rawDbQuest.reward || '';
+                            } else if (rawDbQuest !== undefined) {
+                                dailyQuest = rawDbQuest;
+                                if (dbData.dailyReward !== undefined) dailyReward = dbData.dailyReward;
+                                if (typeof dbData.dailyQuestCoins === 'number') dailyQuestCoins = dbData.dailyQuestCoins;
+                            }
+                            if (dailyQuest === '[object Object]') {
+                                const randIdx = Math.floor(Math.random() * PREDEFINED_QUESTS.length);
+                                dailyQuest = PREDEFINED_QUESTS[randIdx];
+                                dailyQuestCoins = 15;
+                                dailyReward = '';
+                            }
                             if (dbData.tvMessage !== undefined) tvMessage = dbData.tvMessage;
                             if (dbData.catStatus !== undefined) catStatus = dbData.catStatus;
-                            if (typeof dbData.dailyQuestCoins === 'number') dailyQuestCoins = dbData.dailyQuestCoins;
                             if (dbData.lastQuestCompletedDate !== undefined) lastQuestCompletedDate = dbData.lastQuestCompletedDate;
                             if (dbData.lastQuestActiveDate !== undefined) lastQuestActiveDate = dbData.lastQuestActiveDate;
                             if (dbData.questQueue !== undefined) questQueue = dbData.questQueue;
