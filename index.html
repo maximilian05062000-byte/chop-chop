@@ -1014,6 +1014,116 @@
             gap: 6px;
         }
 
+        /* --- Mood Tracker CSS Styles --- */
+        .mood-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.1), 0 0 15px rgba(236, 72, 153, 0.05);
+            border-radius: 20px;
+            padding: 16px 20px;
+            margin: 10px 0 20px 0;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.4s ease;
+        }
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+            margin-bottom: 12px;
+        }
+        .mood-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 10px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-color);
+        }
+        .mood-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(236, 72, 153, 0.4);
+        }
+        .mood-btn.active {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.25) 0%, rgba(168, 85, 247, 0.25) 100%);
+            border-color: #ec4899;
+            box-shadow: 0 0 12px rgba(236, 72, 153, 0.3);
+            transform: scale(1.03);
+        }
+        .mood-btn .mood-emoji {
+            font-size: 22px;
+            line-height: 1;
+        }
+        .mood-btn .mood-title {
+            font-size: 9px;
+            font-weight: 700;
+            opacity: 0.9;
+            white-space: nowrap;
+        }
+        .mood-response-box {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(236, 72, 153, 0.2);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-top: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+        .mood-response-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #f472b6;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .mood-response-text {
+            font-size: 12px;
+            color: var(--text-color);
+            line-height: 1.4;
+        }
+        .mood-input-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .mood-note-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 7px 12px;
+            color: white;
+            font-size: 11px;
+            outline: none;
+        }
+        .mood-note-input:focus {
+            border-color: #ec4899;
+        }
+        .mood-send-btn {
+            background: linear-gradient(135deg, #ec4899, #a855f7);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 0 12px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .mood-send-btn:hover {
+            opacity: 0.9;
+        }
+
         /* --- Shop CSS Styles --- */
         .shop-section {
             background: var(--card-bg);
@@ -1253,6 +1363,17 @@
                     <div style="display: flex; justify-content: flex-end; margin-top: 2px;">
                         <button class="admin-btn" onclick="addQuestToQueue()" style="background: #10b981;">Добавить в очередь</button>
                     </div>
+                </div>
+            </div>
+
+            <!-- Admin Mood Log section -->
+            <div style="margin-top: 12px; border-top: 1px dashed rgba(239, 68, 68, 0.2); padding-top: 10px; text-align: left;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="color: #f87171; font-size: 10px; display: block;">История настроения Любы (отметки):</label>
+                    <button class="admin-btn" onclick="clearMoodHistory()" style="background: #ef4444; font-size: 9px; padding: 2px 6px;">Очистить историю</button>
+                </div>
+                <div id="adminMoodLogList" style="display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto; padding: 4px; border: 1px solid rgba(239, 68, 68, 0.1); border-radius: 6px; background: rgba(0, 0, 0, 0.2);">
+                    <span style="color: rgba(255, 255, 255, 0.4); font-size: 10px; padding: 4px;">Загрузка лога настроений...</span>
                 </div>
             </div>
         </div>
@@ -1543,6 +1664,9 @@
         <!-- Daily Quest Widget -->
         <div id="questContainer"></div>
 
+        <!-- Mood Tracker Widget -->
+        <div id="moodContainer"></div>
+
         <!-- Shop Widget -->
         <div id="shopContainer" class="shop-section" style="display: none;"></div>
 
@@ -1615,6 +1739,63 @@
         let isShopOpen = false;
         let currentPage = 1;
         const itemsPerPage = 5;
+
+        // Mood Tracker Types & Config
+        const MOOD_TYPES = {
+            great: {
+                key: 'great',
+                emoji: '✨',
+                title: 'Всё супер',
+                color: '#ec4899',
+                bubble: 'Чоп-Чопа радуется за тебя! Свети сегодня ярко! 💖',
+                catStatus: 'normal',
+                responseTitle: 'Отличное настроение! ✨',
+                responseText: 'Здорово, что у тебя сегодня всё супер! Наслаждайся этим днём и помни, что ты невероятная.'
+            },
+            cozy: {
+                key: 'cozy',
+                emoji: '🍵',
+                title: 'Спокойно',
+                color: '#10b981',
+                bubble: 'Чоп-Чопа мурчит в тепле 🐾',
+                catStatus: 'normal',
+                responseTitle: 'Уют и гармония 🍵',
+                responseText: 'Спокойное состояние — это прекрасный ресурс. Завари свой любимый чай и побудь в гармонии.'
+            },
+            tired: {
+                key: 'tired',
+                emoji: '🥱',
+                title: 'Устала',
+                color: '#f59e0b',
+                bubble: 'Чоп-Чопа принёс тебе виртуальную подушку 💤',
+                catStatus: 'sleeping',
+                responseTitle: 'Время отдохнуть 🛌',
+                responseText: 'Ты отлично потрудилась! Не перегружай себя, отложи дела и просто пораньше ляг отдохнуть.'
+            },
+            sad: {
+                key: 'sad',
+                emoji: '🌧️',
+                title: 'Грустно',
+                color: '#6366f1',
+                bubble: 'Чоп-Чопа крепко обнимает тебя лапками 🤗❤️',
+                catStatus: 'normal',
+                responseTitle: 'Обнимаю мысленно 🤍',
+                responseText: 'Бывают пасмурные дни, и это нормально. Не требуй от себя слишком многого. Я рядом.'
+            },
+            stressed: {
+                key: 'stressed',
+                emoji: '⚡',
+                title: 'Стресс',
+                color: '#ef4444',
+                bubble: 'Сделай один глубокий вдох вместе с Чоп-Чопой 🧘‍♀️',
+                catStatus: 'working',
+                responseTitle: 'Вдох-выдох 🧘‍♀️',
+                responseText: 'Все задачи решатся по шагам. Сделай паузу на 5 минут, выпей стакан воды. Ты со всем справишься!'
+            }
+        };
+
+        let moodHistory = [];
+        let currentMood = null;
 
         // Interactive animations for Cat
         const catSvg = document.getElementById('catSvg');
@@ -1916,6 +2097,9 @@
                         dailyQuestCoins = (data.record && typeof data.record.dailyQuestCoins === 'number') ? data.record.dailyQuestCoins : 15;
                         
                         questQueue = (data.record && Array.isArray(data.record.questQueue)) ? data.record.questQueue : [];
+                        moodHistory = (data.record && Array.isArray(data.record.moodHistory)) ? data.record.moodHistory : [];
+                        currentMood = (data.record && data.record.currentMood) ? data.record.currentMood : null;
+
                         lastRerollDate = (data.record && data.record.lastRerollDate) ? data.record.lastRerollDate : '';
                         if (lastRerollDate !== todayStr) {
                             rerollsUsedToday = 0;
@@ -1950,6 +2134,8 @@
                         localStorage.setItem('quest_queue_fallback', JSON.stringify(questQueue));
                         localStorage.setItem('rerolls_used_today_fallback', rerollsUsedToday);
                         localStorage.setItem('last_reroll_date_fallback', lastRerollDate);
+                        localStorage.setItem('mood_history_fallback', JSON.stringify(moodHistory));
+                        localStorage.setItem('current_mood_fallback', JSON.stringify(currentMood));
                         
                         if (questRolloverTriggered) {
                             setTimeout(() => {
@@ -1972,8 +2158,10 @@
                             if (qCoins) qCoins.value = dailyQuestCoins;
                             updateAdminQuestStatusUI();
                             renderAdminQueue();
+                            renderAdminMoodLog();
                         }
                         renderQuestCard();
+                        renderMoodTrackerUI();
                         renderShop();
                         renderRequests();
 
@@ -2059,6 +2247,17 @@
                 rerollsUsedToday = 0;
             } else {
                 rerollsUsedToday = parseInt(localStorage.getItem('rerolls_used_today_fallback') || '0', 10);
+            }
+            
+            try {
+                moodHistory = JSON.parse(localStorage.getItem('mood_history_fallback') || '[]');
+            } catch (e) {
+                moodHistory = [];
+            }
+            try {
+                currentMood = JSON.parse(localStorage.getItem('current_mood_fallback') || 'null');
+            } catch (e) {
+                currentMood = null;
             }
             
             const hoursPassed = (getNow() - lastInteractionTime) / (1000 * 60 * 60);
@@ -2148,6 +2347,8 @@
             localStorage.setItem('quest_queue_fallback', JSON.stringify(questQueue));
             localStorage.setItem('rerolls_used_today_fallback', rerollsUsedToday);
             localStorage.setItem('last_reroll_date_fallback', lastRerollDate);
+            localStorage.setItem('mood_history_fallback', JSON.stringify(moodHistory));
+            localStorage.setItem('current_mood_fallback', JSON.stringify(currentMood));
             
             try {
                 const response = await fetch(`${PROXY_URL}?path=db`, {
@@ -2172,7 +2373,9 @@
                         dailyQuestCoins: dailyQuestCoins,
                         questQueue: questQueue,
                         rerollsUsedToday: rerollsUsedToday,
-                        lastRerollDate: lastRerollDate
+                        lastRerollDate: lastRerollDate,
+                        moodHistory: moodHistory,
+                        currentMood: currentMood
                     })
                 });
                 if (!response.ok) {
@@ -3133,6 +3336,222 @@
                 lastQuestActiveDate = oldActiveDate;
                 showToast('Не удалось сбросить квест!');
             }
+        }
+
+        // --- Mood Tracker Logic ---
+        function renderMoodTrackerUI() {
+            const container = document.getElementById('moodContainer');
+            if (!container) return;
+            
+            const todayStr = getLocalDateString(getNow());
+            const hasSetToday = currentMood && currentMood.date === todayStr;
+            const activeKey = hasSetToday ? currentMood.moodKey : null;
+            const currentMoodObj = activeKey ? MOOD_TYPES[activeKey] : null;
+            
+            let moodButtonsHtml = Object.keys(MOOD_TYPES).map(key => {
+                const item = MOOD_TYPES[key];
+                const isActive = activeKey === key;
+                return `
+                    <button class="mood-btn ${isActive ? 'active' : ''}" onclick="selectMood('${key}')">
+                        <span class="mood-emoji">${item.emoji}</span>
+                        <span class="mood-title">${item.title}</span>
+                    </button>
+                `;
+            }).join('');
+
+            let responseBoxHtml = '';
+            if (currentMoodObj) {
+                const noteDisplay = currentMood.note ? `<div style="font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 4px; font-style: italic;">«${currentMood.note}»</div>` : '';
+                responseBoxHtml = `
+                    <div class="mood-response-box">
+                        <div class="mood-response-title">
+                            <span>${currentMoodObj.emoji} ${currentMoodObj.responseTitle}</span>
+                        </div>
+                        <div class="mood-response-text">${currentMoodObj.responseText}</div>
+                        ${noteDisplay}
+                    </div>
+                `;
+            }
+
+            let historyLogHtml = '';
+            if (moodHistory && moodHistory.length > 0) {
+                const recentHistory = moodHistory.slice(-5).reverse();
+                const historyItems = recentHistory.map(entry => {
+                    const mObj = MOOD_TYPES[entry.moodKey] || { emoji: '✨', title: entry.moodKey };
+                    const timeStr = entry.timestamp ? new Date(entry.timestamp).toLocaleDateString('ru-RU', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                    const noteStr = entry.note ? ` — <em>«${entry.note}»</em>` : '';
+                    return `<div style="font-size: 10px; color: rgba(255,255,255,0.7); margin-top: 3px;">• ${mObj.emoji} <strong>${mObj.title}</strong> <span style="font-size:9px; opacity:0.6;">(${timeStr})</span>${noteStr}</div>`;
+                }).join('');
+                historyLogHtml = `
+                    <div style="margin-top: 12px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px;">
+                        <span style="font-size: 9px; font-weight: 700; color: #a855f7; text-transform: uppercase; letter-spacing: 1px;">История отметок:</span>
+                        <div style="margin-top: 4px;">${historyItems}</div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="mood-card">
+                    <div class="quest-title-row">
+                        <span class="quest-label" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.2);">💖 Настроение дня</span>
+                        <span class="quest-status-text">${hasSetToday ? 'Отметка сделана ✨' : '<span style="display:inline-flex; align-items:center; gap:3px;">+5 <span class="coin-gold-icon"></span> за отметку!</span>'}</span>
+                    </div>
+                    <div class="mood-grid">
+                        ${moodButtonsHtml}
+                    </div>
+                    ${responseBoxHtml}
+                    <div class="mood-input-row">
+                        <input type="text" id="moodNoteInput" class="mood-note-input" placeholder="Добавить пару слов (по желанию)..." value="${(currentMood && currentMood.note) ? currentMood.note : ''}">
+                        <button class="mood-send-btn" onclick="saveMoodNote()">Сохранить</button>
+                    </div>
+                    ${historyLogHtml}
+                </div>
+            `;
+        }
+
+        async function selectMood(moodKey) {
+            if (isSaving) return;
+            const moodObj = MOOD_TYPES[moodKey];
+            if (!moodObj) return;
+
+            const todayStr = getLocalDateString(getNow());
+            const currentNote = document.getElementById('moodNoteInput') ? document.getElementById('moodNoteInput').value.trim() : '';
+
+            const entry = {
+                timestamp: getNow(),
+                date: todayStr,
+                moodKey: moodKey,
+                note: currentNote
+            };
+
+            const existingIdx = moodHistory.findIndex(h => h.date === todayStr);
+            let earnedBonus = false;
+
+            if (existingIdx !== -1) {
+                moodHistory[existingIdx] = entry;
+            } else {
+                moodHistory.push(entry);
+                coins += 5;
+                earnedBonus = true;
+            }
+            currentMood = entry;
+
+            const statusElem = document.getElementById('mainStatus');
+            if (statusElem) {
+                statusElem.innerText = moodObj.bubble;
+            }
+
+            renderMoodTrackerUI();
+            renderShop();
+            if (isAdmin) renderAdminMoodLog();
+
+            try {
+                await saveRequestsToServer();
+                if (earnedBonus) {
+                    showToast('Настроение сохранено! Получено +5 монет! 🪙');
+                } else {
+                    showToast('Настроение обновлено! 💖');
+                }
+                sendMoodNotification(moodObj, currentNote);
+            } catch (err) {
+                console.error('Error saving mood:', err);
+                showToast('Ошибка сохранения настроения!');
+            }
+        }
+
+        async function clearMoodHistory() {
+            if (isSaving) return;
+            moodHistory = [];
+            currentMood = null;
+            renderMoodTrackerUI();
+            if (isAdmin) renderAdminMoodLog();
+
+            try {
+                await saveRequestsToServer();
+                showToast('История настроений очищена!');
+            } catch (err) {
+                console.error('Error clearing mood history:', err);
+                showToast('Ошибка очистки истории!');
+            }
+        }
+
+        async function saveMoodNote() {
+            if (!currentMood) {
+                showToast('Сначала выбери настроение! 💖');
+                return;
+            }
+            const noteInput = document.getElementById('moodNoteInput');
+            if (!noteInput) return;
+            const noteText = noteInput.value.trim();
+            currentMood.note = noteText;
+            
+            const todayStr = getLocalDateString(getNow());
+            const existingIdx = moodHistory.findIndex(h => h.date === todayStr);
+            if (existingIdx !== -1) {
+                moodHistory[existingIdx].note = noteText;
+            }
+
+            renderMoodTrackerUI();
+            if (isAdmin) renderAdminMoodLog();
+
+            try {
+                await saveRequestsToServer();
+                showToast('Заметка сохранена! 📝');
+                const moodObj = MOOD_TYPES[currentMood.moodKey];
+                if (moodObj) sendMoodNotification(moodObj, noteText);
+            } catch (err) {
+                console.error('Error saving mood note:', err);
+                showToast('Ошибка сохранения заметки!');
+            }
+        }
+
+        async function sendMoodNotification(moodObj, noteText) {
+            try {
+                const siteUrl = window.location.origin + window.location.pathname + '#admin';
+                await fetch(`${PROXY_URL}?path=notify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    },
+                    body: JSON.stringify({
+                        topic: 'chop_chop_care_' + BIN_ID,
+                        title: `Люба отметила настроение: ${moodObj.emoji} ${moodObj.title}!`,
+                        message: `${noteText ? 'Заметка: "' + noteText + '"\n' : ''}Чоп-Чопа говорит: "${moodObj.bubble}"`,
+                        tags: ['heart', 'cat', 'sparkles'],
+                        priority: 4,
+                        click: siteUrl
+                    })
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderAdminMoodLog() {
+            const container = document.getElementById('adminMoodLogList');
+            if (!container) return;
+
+            if (!moodHistory || moodHistory.length === 0) {
+                container.innerHTML = `<span style="color: rgba(255, 255, 255, 0.4); font-size: 10px; padding: 4px;">Отметок пока нет.</span>`;
+                return;
+            }
+
+            const sortedLog = [...moodHistory].reverse();
+            container.innerHTML = sortedLog.map(item => {
+                const mObj = MOOD_TYPES[item.moodKey] || { emoji: '✨', title: item.moodKey };
+                const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleString('ru-RU') : item.date;
+                const noteStr = item.note ? `<div style="font-size: 9px; color: #f472b6; margin-top: 2px;">«${item.note}»</div>` : '';
+
+                return `
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 5px 8px; border-radius: 6px; margin-bottom: 2px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: white; font-size: 10px; font-weight: bold;">${mObj.emoji} ${mObj.title}</span>
+                            <span style="color: rgba(255,255,255,0.4); font-size: 9px;">${timeStr}</span>
+                        </div>
+                        ${noteStr}
+                    </div>
+                `;
+            }).join('');
         }
 
         function renderQuestCard() {
