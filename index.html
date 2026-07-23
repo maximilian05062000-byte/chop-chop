@@ -2757,27 +2757,7 @@
             }, 600);
         }
 
-        async function sendMoodNotification(actionText) {
-            try {
-                const siteUrl = window.location.origin + window.location.pathname + '#admin';
-                await fetch(`${PROXY_URL}?path=notify`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'text/plain'
-                    },
-                    body: JSON.stringify({
-                        topic: 'chop_chop_care_' + BIN_ID,
-                        title: 'Чоп-Чопа доволен! 🥰',
-                        message: `Люба ${actionText}! Настроение кота: ${catMood}%`,
-                        tags: ['heart', 'cat'],
-                        priority: 3,
-                        click: siteUrl
-                    })
-                });
-            } catch (err) {
-                console.error('Error sending mood notification:', err);
-            }
-        }
+        // sendMoodNotification is unified below in Mood Tracker section
 
         function renderRequests() {
             const historyList = document.getElementById('historyList');
@@ -3642,6 +3622,26 @@
         async function sendMoodNotification(moodObj, noteText) {
             try {
                 const siteUrl = window.location.origin + window.location.pathname + '#admin';
+                let notifTitle = '';
+                let notifMessage = '';
+                let notifTags = ['heart', 'cat', 'sparkles'];
+
+                if (typeof moodObj === 'string') {
+                    // Invoked from cat feeding / petting
+                    notifTitle = 'Чоп-Чопа доволен! 🥰';
+                    notifMessage = `Люба ${moodObj}! Настроение кота: ${catMood}%`;
+                    notifTags = ['heart', 'cat', 'fish'];
+                } else if (moodObj && typeof moodObj === 'object') {
+                    // Invoked from Mood Tracker
+                    const emoji = moodObj.emoji || '✨';
+                    const title = moodObj.title || 'Настроение';
+                    const bubble = moodObj.bubble || '';
+                    notifTitle = `Люба отметила настроение: ${emoji} ${title}!`;
+                    notifMessage = `${noteText ? 'Заметка: "' + noteText + '"\n' : ''}Чоп-Чопа говорит: "${bubble}"`;
+                } else {
+                    return;
+                }
+
                 await fetch(`${PROXY_URL}?path=notify`, {
                     method: 'POST',
                     headers: {
@@ -3649,9 +3649,9 @@
                     },
                     body: JSON.stringify({
                         topic: 'chop_chop_care_' + BIN_ID,
-                        title: `Люба отметила настроение: ${moodObj.emoji} ${moodObj.title}!`,
-                        message: `${noteText ? 'Заметка: "' + noteText + '"\n' : ''}Чоп-Чопа говорит: "${moodObj.bubble}"`,
-                        tags: ['heart', 'cat', 'sparkles'],
+                        title: notifTitle,
+                        message: notifMessage,
+                        tags: notifTags,
                         priority: 4,
                         click: siteUrl
                     })
