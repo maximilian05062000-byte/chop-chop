@@ -1775,7 +1775,7 @@
         <div class="history-section">
             <div class="history-title">
                 <span>Список запросов</span>
-                <button class="refresh-btn" onclick="loadRequests()">🔄 Обновить</button>
+                <button class="refresh-btn" onclick="forceRefreshData()">🔄 Обновить</button>
             </div>
             <ul class="history-list" id="historyList">
                 <li style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 15px;">
@@ -2065,6 +2065,7 @@
         // --- Database & Storage Operations ---
         
         let isSaving = false;
+        let pendingSave = false;
         let clockDrift = 0;
         function getNow() {
             return Date.now() + clockDrift;
@@ -2097,11 +2098,17 @@
             }
         }
 
+        async function forceRefreshData() {
+            showToast('Обновление данных... 🔄');
+            await loadRequests();
+            showToast('Данные обновлены! ✨');
+        }
+
         async function loadRequests() {
             if (isSaving) return; // Do not fetch while saving to prevent overwriting
             const expectedVersion = localVersion;
             try {
-                const response = await fetch(`${PROXY_URL}?path=db`);
+                const response = await fetch(`${PROXY_URL}?path=db&_t=${Date.now()}`, { cache: 'no-store' });
                 if (response.ok) {
                     if (expectedVersion === localVersion && !isSaving) {
                         const data = await response.json();
@@ -2389,63 +2396,13 @@
         }
 
         async function saveRequestsToServer() {
-            isSaving = true;
-            
-            // Try to fetch latest DB state before saving to prevent overwriting newer admin changes or concurrent edits
-            try {
-                const getRes = await fetch(`${PROXY_URL}?path=db`);
-                if (getRes.ok) {
-                    const getJson = await getRes.json();
-                    if (getJson && getJson.record) {
-                        const dbData = getJson.record;
-                        
-                        // 1. If not admin, do not overwrite admin fields
-                        if (!isAdmin) {
-                            let rawDbQuest = dbData.dailyQuest;
-                            if (typeof rawDbQuest === 'object' && rawDbQuest !== null) {
-                                dailyQuest = rawDbQuest.quest || '';
-                                dailyQuestCoins = typeof rawDbQuest.coins === 'number' ? rawDbQuest.coins : 15;
-                                dailyReward = rawDbQuest.reward || '';
-                            } else if (rawDbQuest !== undefined) {
-                                dailyQuest = rawDbQuest;
-                                if (dbData.dailyReward !== undefined) dailyReward = dbData.dailyReward;
-                                if (typeof dbData.dailyQuestCoins === 'number') dailyQuestCoins = dbData.dailyQuestCoins;
-                            }
-                            if (dailyQuest === '[object Object]') {
-                                const randIdx = Math.floor(Math.random() * PREDEFINED_QUESTS.length);
-                                dailyQuest = PREDEFINED_QUESTS[randIdx];
-                                dailyQuestCoins = 15;
-                                dailyReward = '';
-                            }
-                            if (dbData.tvMessage !== undefined) tvMessage = dbData.tvMessage;
-                            if (dbData.catStatus !== undefined) catStatus = dbData.catStatus;
-                            if (dbData.lastQuestCompletedDate !== undefined) lastQuestCompletedDate = dbData.lastQuestCompletedDate;
-                            if (dbData.lastQuestActiveDate !== undefined) lastQuestActiveDate = dbData.lastQuestActiveDate;
-                            if (dbData.questQueue !== undefined) questQueue = dbData.questQueue;
-                            if (dbData.secretTimerDate !== undefined) secretTimerDate = dbData.secretTimerDate;
-                            if (dbData.secretForceUnlocked !== undefined) secretForceUnlocked = dbData.secretForceUnlocked;
-                        }
-                        
-                        // 2. Update clock drift from serverTime
-                        if (typeof dbData.serverTime === 'number') {
-                            clockDrift = dbData.serverTime - Date.now();
-                        }
-                        
-                        // 3. Concurrency check for cat mood: if server has a newer interaction timestamp, use it
-                        if (typeof dbData.lastInteractionTime === 'number' && dbData.lastInteractionTime > lastInteractionTime) {
-                            lastInteractionTime = dbData.lastInteractionTime;
-                            if (typeof dbData.catMood === 'number') {
-                                catMood = dbData.catMood;
-                            }
-                        } else {
-                            lastInteractionTime = getNow();
-                        }
-                    }
-                }
-            } catch (fetchErr) {
-                console.warn('Failed to fetch latest server state before saving, using local values:', fetchErr);
-                lastInteractionTime = getNow();
+            if (isSaving) {
+                pendingSave = true;
+                return;
             }
+            isSaving = true;
+            pendingSave = false;
+            localVersion++;
             
             // Mark all pending as synced for the server payload
             const payloadRequests = requestsData.map(r => {
@@ -2481,11 +2438,12 @@
             localStorage.setItem('secret_force_unlocked_fallback', secretForceUnlocked ? 'true' : 'false');
             
             try {
-                const response = await fetch(`${PROXY_URL}?path=db`, {
+                const response = await fetch(`${PROXY_URL}?path=db&_t=${Date.now()}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/plain'
                     },
+                    cache: 'no-store',
                     body: JSON.stringify({ 
                         requests: payloadRequests,
                         catStatus: catStatus,
@@ -2525,8 +2483,14 @@
                 // On success, update our memory array to synced
                 requestsData = payloadRequests;
                 localStorage.setItem('requests_fallback', JSON.stringify(requestsData));
+            } catch (err) {
+                console.error('Error saving requests to server:', err);
             } finally {
                 isSaving = false;
+                if (pendingSave) {
+                    pendingSave = false;
+                    setTimeout(saveRequestsToServer, 300);
+                }
             }
         }
 
@@ -2685,7 +2649,6 @@
         }
 
         async function feedCat() {
-            if (isSaving) return;
             triggerCatAnimation('anim-pulse');
             
             spawnFloatingEmoji('🐟');
@@ -2711,7 +2674,6 @@
         }
 
         async function petCat() {
-            if (isSaving) return;
             triggerCatAnimation('anim-bounce');
             
             spawnFloatingEmoji('❤️');
