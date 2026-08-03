@@ -2075,20 +2075,22 @@
         let lastInteractionTime = Date.now();
         let tvMessage = '';
 
+        function isIgnoredRequest(r) {
+            if (!r || !r.id) return true;
+            if (r.id === 'req_1783601991562_1zrfx' || r.id === 'req_1783602022389_nk34t' || r.id === 'req_1783602040457_enauo') return true;
+            if (r.id === 'req_1784225000001_13k' || r.id === 'req_1784225000002_50k' || r.id === 'req_1784225000003_gift') return true;
+            if (r.id === 'req_1785170942912_cb3u1' || r.id === 'req_1785170950164_luikc') return true;
+            const str = (r.title || '') + ' ' + (r.details || '');
+            if (str.toLowerCase().indexOf('додо') !== -1 || str.toLowerCase().indexOf('dodo') !== -1 || str.indexOf('123') !== -1) return true;
+            return false;
+        }
+
         function getLocalStorageFallback() {
             try {
                 const list = JSON.parse(localStorage.getItem('requests_fallback') || '[]');
                 if (Array.isArray(list)) {
                     return list.filter(function(r) {
-                        if (!r || !r.id) return false;
-                        if (r.id === 'req_1783601991562_1zrfx') return false; // 5000 к 20.07
-                        if (r.id === 'req_1783602022389_nk34t') return false; // Выбери сам
-                        if (r.id === 'req_1783602040457_enauo') return false; // 123
-                        if (r.id === 'req_1784225000001_13k') return false; // duplicate 13k
-                        if (r.id === 'req_1784225000002_50k') return false; // duplicate 50k
-                        if (r.id === 'req_1784225000003_gift') return false; // duplicate gift
-                        if (r.details && r.details.indexOf('123') !== -1) return false;
-                        return true;
+                        return !isIgnoredRequest(r);
                     });
                 }
                 return [];
@@ -2115,14 +2117,11 @@
                         if (data.error || !data.record || !Array.isArray(data.record.requests)) {
                             throw new Error(data.error || 'Неверная структура данных от сервера');
                         }
-                        const serverRequests = data.record.requests;
+                        const serverRequests = data.record.requests.filter(r => !isIgnoredRequest(r));
                         
                         // Merge any local requests not present on the server to prevent data loss
                         const localOnly = requestsData.filter(r => {
-                            if (!r || !r.id) return false;
-                            if (r.id === 'req_1784225000001_13k') return false;
-                            if (r.id === 'req_1784225000002_50k') return false;
-                            if (r.id === 'req_1784225000003_gift') return false;
+                            if (isIgnoredRequest(r)) return false;
                             return !serverRequests.some(sr => sr.id === r.id);
                         });
                         if (localOnly.length > 0) {
