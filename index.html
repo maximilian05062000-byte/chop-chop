@@ -2066,6 +2066,7 @@
         
         let isSaving = false;
         let pendingSave = false;
+        let lastLocalActionTime = 0;
         let clockDrift = 0;
         function getNow() {
             return Date.now() + clockDrift;
@@ -2167,74 +2168,78 @@
                         
                         const todayStr = getLocalDateString(getNow());
                         let questRolloverTriggered = false;
-                        
-                        if (lastQuestActiveDate !== todayStr) {
-                            lastQuestActiveDate = todayStr;
-                            dailyQuestCompleted = false;
-                            
-                            // Pop from queue or fallback
-                            const storedQueue = (data.record && Array.isArray(data.record.questQueue)) ? data.record.questQueue : [];
-                            if (storedQueue.length > 0) {
-                                const popped = storedQueue.shift();
-                                questQueue = storedQueue;
-                                if (typeof popped === 'string') {
-                                    dailyQuest = popped;
-                                    dailyQuestCoins = 15;
-                                    dailyReward = '';
-                                } else if (popped && typeof popped === 'object') {
-                                    dailyQuest = popped.quest || '';
-                                    dailyQuestCoins = typeof popped.coins === 'number' ? popped.coins : 15;
-                                    dailyReward = popped.reward || '';
+                        const nowTime = Date.now();
+                        const isRecentlyActiveLocally = (nowTime - lastLocalActionTime < 10000);
+
+                        if (!isRecentlyActiveLocally) {
+                            if (lastQuestActiveDate !== todayStr) {
+                                lastQuestActiveDate = todayStr;
+                                dailyQuestCompleted = false;
+                                
+                                // Pop from queue or fallback
+                                const storedQueue = (data.record && Array.isArray(data.record.questQueue)) ? data.record.questQueue : [];
+                                if (storedQueue.length > 0) {
+                                    const popped = storedQueue.shift();
+                                    questQueue = storedQueue;
+                                    if (typeof popped === 'string') {
+                                        dailyQuest = popped;
+                                        dailyQuestCoins = 15;
+                                        dailyReward = '';
+                                    } else if (popped && typeof popped === 'object') {
+                                        dailyQuest = popped.quest || '';
+                                        dailyQuestCoins = typeof popped.coins === 'number' ? popped.coins : 15;
+                                        dailyReward = popped.reward || '';
+                                    } else {
+                                        dailyQuest = '';
+                                        dailyQuestCoins = 15;
+                                        dailyReward = '';
+                                    }
                                 } else {
-                                    dailyQuest = '';
+                                    const randIdx = Math.floor(Math.random() * PREDEFINED_QUESTS.length);
+                                    dailyQuest = PREDEFINED_QUESTS[randIdx];
                                     dailyQuestCoins = 15;
                                     dailyReward = '';
                                 }
+                                questRolloverTriggered = true;
                             } else {
-                                const randIdx = Math.floor(Math.random() * PREDEFINED_QUESTS.length);
-                                dailyQuest = PREDEFINED_QUESTS[randIdx];
-                                dailyQuestCoins = 15;
-                                dailyReward = '';
+                                if (lastQuestCompletedDate !== todayStr) {
+                                    dailyQuestCompleted = false;
+                                } else {
+                                    dailyQuestCompleted = (data.record && data.record.dailyQuestCompleted) ? !!data.record.dailyQuestCompleted : false;
+                                }
                             }
-                            questRolloverTriggered = true;
-                        } else {
-                            if (lastQuestCompletedDate !== todayStr) {
-                                dailyQuestCompleted = false;
+                            
+                            coins = (data.record && typeof data.record.coins === 'number') ? data.record.coins : 0;
+                            shopPurchases = (data.record && Array.isArray(data.record.shopPurchases)) ? data.record.shopPurchases : [];
+                            activeAccessory = (data.record && data.record.activeAccessory) ? data.record.activeAccessory : null;
+                            dailyQuestCoins = (data.record && typeof data.record.dailyQuestCoins === 'number') ? data.record.dailyQuestCoins : 15;
+                            
+                            questQueue = (data.record && Array.isArray(data.record.questQueue)) ? data.record.questQueue : [];
+                            moodHistory = (data.record && Array.isArray(data.record.moodHistory)) ? data.record.moodHistory : [];
+                            currentMood = (data.record && data.record.currentMood) ? data.record.currentMood : null;
+
+                            secretTimerDate = (data.record && data.record.secretTimerDate) ? data.record.secretTimerDate : '';
+                            secretAddress = (data.record && data.record.secretAddress) ? data.record.secretAddress : '';
+                            secretSubmittedDate = (data.record && data.record.secretSubmittedDate) ? data.record.secretSubmittedDate : '';
+                            secretForceUnlocked = (data.record && data.record.secretForceUnlocked) ? !!data.record.secretForceUnlocked : false;
+
+                            lastRerollDate = (data.record && data.record.lastRerollDate) ? data.record.lastRerollDate : '';
+                            if (lastRerollDate !== todayStr) {
+                                rerollsUsedToday = 0;
                             } else {
-                                dailyQuestCompleted = (data.record && data.record.dailyQuestCompleted) ? !!data.record.dailyQuestCompleted : false;
+                                rerollsUsedToday = (data.record && typeof data.record.rerollsUsedToday === 'number') ? data.record.rerollsUsedToday : 0;
                             }
+                            
+                            const dbMood = (data.record && typeof data.record.catMood === 'number') ? data.record.catMood : 80;
+                            const dbInteractionTime = (data.record && typeof data.record.lastInteractionTime === 'number') 
+                                ? data.record.lastInteractionTime 
+                                : getNow();
+                            
+                            // Calculate decay: 1% per hour
+                            const hoursPassed = (getNow() - dbInteractionTime) / (1000 * 60 * 60);
+                            catMood = Math.max(10, Math.round(dbMood - hoursPassed * 1));
+                            lastInteractionTime = dbInteractionTime;
                         }
-                        
-                        coins = (data.record && typeof data.record.coins === 'number') ? data.record.coins : 0;
-                        shopPurchases = (data.record && Array.isArray(data.record.shopPurchases)) ? data.record.shopPurchases : [];
-                        activeAccessory = (data.record && data.record.activeAccessory) ? data.record.activeAccessory : null;
-                        dailyQuestCoins = (data.record && typeof data.record.dailyQuestCoins === 'number') ? data.record.dailyQuestCoins : 15;
-                        
-                        questQueue = (data.record && Array.isArray(data.record.questQueue)) ? data.record.questQueue : [];
-                        moodHistory = (data.record && Array.isArray(data.record.moodHistory)) ? data.record.moodHistory : [];
-                        currentMood = (data.record && data.record.currentMood) ? data.record.currentMood : null;
-
-                        secretTimerDate = (data.record && data.record.secretTimerDate) ? data.record.secretTimerDate : '';
-                        secretAddress = (data.record && data.record.secretAddress) ? data.record.secretAddress : '';
-                        secretSubmittedDate = (data.record && data.record.secretSubmittedDate) ? data.record.secretSubmittedDate : '';
-                        secretForceUnlocked = (data.record && data.record.secretForceUnlocked) ? !!data.record.secretForceUnlocked : false;
-
-                        lastRerollDate = (data.record && data.record.lastRerollDate) ? data.record.lastRerollDate : '';
-                        if (lastRerollDate !== todayStr) {
-                            rerollsUsedToday = 0;
-                        } else {
-                            rerollsUsedToday = (data.record && typeof data.record.rerollsUsedToday === 'number') ? data.record.rerollsUsedToday : 0;
-                        }
-                        
-                        const dbMood = (data.record && typeof data.record.catMood === 'number') ? data.record.catMood : 80;
-                        const dbInteractionTime = (data.record && typeof data.record.lastInteractionTime === 'number') 
-                            ? data.record.lastInteractionTime 
-                            : getNow();
-                        
-                        // Calculate decay: 1% per hour
-                        const hoursPassed = (getNow() - dbInteractionTime) / (1000 * 60 * 60);
-                        catMood = Math.max(10, Math.round(dbMood - hoursPassed * 1));
-                        lastInteractionTime = dbInteractionTime;
 
                         localStorage.setItem('requests_fallback', JSON.stringify(requestsData));
                         localStorage.setItem('cat_status_fallback', catStatus);
