@@ -3486,7 +3486,6 @@
         }
 
         async function selectMood(moodKey) {
-            if (isSaving) return;
             const moodObj = MOOD_TYPES[moodKey];
             if (!moodObj) return;
 
@@ -3536,7 +3535,6 @@
         }
 
         async function clearMoodHistory() {
-            if (isSaving) return;
             moodHistory = [];
             currentMood = null;
             renderMoodTrackerUI();
@@ -3948,7 +3946,7 @@
         }
 
         async function completeQuest() {
-            if (isSaving || dailyQuestCompleted) return;
+            if (dailyQuestCompleted) return;
             
             const oldCompleted = dailyQuestCompleted;
             const oldCompletedDate = lastQuestCompletedDate;
@@ -3986,7 +3984,7 @@
         }
 
         async function rerollQuest() {
-            if (isSaving || dailyQuestCompleted) return;
+            if (dailyQuestCompleted) return;
             
             const cost = rerollsUsedToday === 0 ? 0 : 5;
             if (coins < cost) {
