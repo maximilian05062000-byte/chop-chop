@@ -1632,7 +1632,7 @@
             </div>
         </div>
 
-        <h1>Чоп-Чопа на связи</h1>
+        <h1 id="pageTitle">Чоп-Чопа на связи</h1>
         <p class="subtitle" id="mainStatus">Выберите действие:</p>
 
         <!-- Buttons Grid -->
@@ -2504,6 +2504,7 @@
             const workHelmet = document.getElementById('workHelmet');
             const heartEyes = document.getElementById('heartEyes');
             const subtitleText = document.getElementById('mainStatus');
+            const pageTitle = document.getElementById('pageTitle');
             const catSvg = document.getElementById('catSvg');
             
             // Hide all accessories first
@@ -2515,6 +2516,15 @@
             catSvg.classList.remove('state-sleeping');
             catSvg.classList.remove('state-peeking');
             catSvg.classList.remove('anim-love');
+            
+            // Dynamic page title based on status
+            if (pageTitle) {
+                if (catStatus === 'missing') {
+                    pageTitle.innerText = 'Чоп-Чопа скучает';
+                } else {
+                    pageTitle.innerText = 'Чоп-Чопа на связи';
+                }
+            }
             
             if (catStatus === 'sleeping') {
                 if (nightcap) nightcap.style.display = 'block';
@@ -2528,7 +2538,6 @@
                     subtitleText.innerHTML = '💼 Чоп-Чопа сейчас на работе, он очень хочет всегда быть рядом, но иногда нужно отвлечься чтобы исполнить все твои желания, он проверит все твои запросы как только вернется домой';
                 }
             } else if (catStatus === 'missing') {
-                if (heartEyes) heartEyes.style.display = 'block';
                 catSvg.classList.add('anim-love');
                 if (!isAdmin) {
                     subtitleText.innerHTML = '🥺 Мой хозяин тоже очень скучает по тебе, но не может тебе этого сказать, поэтому говорю я.';
