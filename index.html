@@ -1400,10 +1400,11 @@
                 Вы можете отмечать запросы выполненными. Люба сразу увидит это у себя.
             </div>
             <!-- Status Selector UI -->
-            <div style="display: flex; justify-content: center; gap: 6px; margin-top: 8px;">
+            <div style="display: flex; justify-content: center; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
                 <button class="status-sel-btn" id="statusBtn-normal" onclick="setAdminCatStatus('normal')">🟢 Активен</button>
                 <button class="status-sel-btn" id="statusBtn-working" onclick="setAdminCatStatus('working')">💼 Работает</button>
                 <button class="status-sel-btn" id="statusBtn-sleeping" onclick="setAdminCatStatus('sleeping')">💤 Спит</button>
+                <button class="status-sel-btn" id="statusBtn-missing" onclick="setAdminCatStatus('missing')">🥺 Скучает</button>
             </div>
             <!-- TV custom message input -->
             <div style="margin-top: 12px; border-top: 1px dashed rgba(239, 68, 68, 0.2); padding-top: 10px; text-align: left;">
@@ -2501,27 +2502,36 @@
         function applyCatStatus() {
             const nightcap = document.getElementById('nightcap');
             const workHelmet = document.getElementById('workHelmet');
+            const heartEyes = document.getElementById('heartEyes');
             const subtitleText = document.getElementById('mainStatus');
             const catSvg = document.getElementById('catSvg');
             
             // Hide all accessories first
-            nightcap.style.display = 'none';
-            workHelmet.style.display = 'none';
+            if (nightcap) nightcap.style.display = 'none';
+            if (workHelmet) workHelmet.style.display = 'none';
+            if (heartEyes) heartEyes.style.display = 'none';
             
             // Clear status classes
             catSvg.classList.remove('state-sleeping');
             catSvg.classList.remove('state-peeking');
+            catSvg.classList.remove('anim-love');
             
             if (catStatus === 'sleeping') {
-                nightcap.style.display = 'block';
+                if (nightcap) nightcap.style.display = 'block';
                 catSvg.classList.add('state-sleeping');
                 if (!isAdmin) {
                     subtitleText.innerHTML = '💤 Чоп-Чопа сейчас спит, игрушкам тоже нужно отдыхать, но если тебе что-то срочно нужно можешь разбудить его <b>(Нажимай на кота)</b>';
                 }
             } else if (catStatus === 'working') {
-                workHelmet.style.display = 'block';
+                if (workHelmet) workHelmet.style.display = 'block';
                 if (!isAdmin) {
                     subtitleText.innerHTML = '💼 Чоп-Чопа сейчас на работе, он очень хочет всегда быть рядом, но иногда нужно отвлечься чтобы исполнить все твои желания, он проверит все твои запросы как только вернется домой';
+                }
+            } else if (catStatus === 'missing') {
+                if (heartEyes) heartEyes.style.display = 'block';
+                catSvg.classList.add('anim-love');
+                if (!isAdmin) {
+                    subtitleText.innerHTML = '🥺 Мой хозяин тоже очень скучает по тебе, но не может тебе этого сказать, поэтому говорю я.';
                 }
             } else {
                 if (!isAdmin) {
@@ -2553,7 +2563,7 @@
         }
 
         function updateAdminStatusButtons() {
-            const btns = ['normal', 'working', 'sleeping'];
+            const btns = ['normal', 'working', 'sleeping', 'missing'];
             btns.forEach(status => {
                 const btn = document.getElementById('statusBtn-' + status);
                 if (btn) {
