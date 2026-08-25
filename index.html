@@ -1388,6 +1388,15 @@
         .shop-card-btn.equipped:hover span::after {
             content: ' (Снять)';
         }
+    
+        /* Cheshire Cat Skin Mode: Hides body, head and ears, leaving glowing eyes, nose, whiskers & smile */
+        #catSvg.cheshire-mode .left-ear,
+        #catSvg.cheshire-mode .right-ear,
+        #catSvg.cheshire-mode ellipse[fill="#16171d"],
+        #catSvg.cheshire-mode path[stroke="#c05621"] {
+            display: none !important;
+        }
+
     </style>
 </head>
 <body>
@@ -1609,6 +1618,13 @@
                         <rect x="66" y="44" width="76" height="10" rx="5" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.5" />
                         <circle cx="143" cy="43" r="8" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.5" />
                     </g>
+                
+                    <g id="acc-cheshire-skin" style="display: none;">
+                        <!-- Mysterious glowing Cheshire smile -->
+                        <path d="M 82 114 Q 110 136 138 114 Q 110 120 82 114 Z" fill="#fbbf24" opacity="0.85" />
+                        <path d="M 82 114 Q 110 134 138 114" stroke="#ffffff" stroke-width="2" stroke-linecap="round" fill="none" />
+                    </g>
+
                 </svg>
             </div>
             <button class="miss-heart-btn" onclick="sendMissYou()">❤️</button>
@@ -4116,7 +4132,13 @@
 
         /* --- Shop Logic JS Methods --- */
         function updateCatAccessoryUI() {
-            const accs = ['bowtie', 'sunglasses', 'chain', 'crown', 'scarf', 'heart-headband', 'detective-hat', 'monocle', 'santa-hat'];
+            const accs = ['bowtie', 'sunglasses', 'chain', 'crown', 'scarf', 'heart-headband', 'detective-hat', 'monocle', 'santa-hat', 'cheshire-skin'];
+            const catSvg = document.getElementById('catSvg');
+            if (activeAccessory === 'cheshire-skin') {
+                if (catSvg) catSvg.classList.add('cheshire-mode');
+            } else {
+                if (catSvg) catSvg.classList.remove('cheshire-mode');
+            }
             accs.forEach(acc => {
                 const el = document.getElementById('acc-' + acc);
                 if (el) el.style.display = 'none';
@@ -4234,7 +4256,8 @@
                 'santa-hat': 'Колпак Санты 🧑‍🎄',
                 chain: 'Золотая цепочка 🪙',
                 'detective-hat': 'Шляпа детектива 🕵️‍♂️',
-                crown: 'Королевская корона 👑'
+                crown: 'Королевская корона 👑',
+                'cheshire-skin': 'Скин «Чеширский кот» 😸'
             };
             const accName = accNames[accId] || accId;
             try {
@@ -4308,7 +4331,8 @@
                 { id: 'santa-hat', name: 'Колпак Санты 🧑‍🎄', desc: 'Праздничный красный колпак с пушистым помпоном.', cost: 50 },
                 { id: 'chain', name: 'Золотая цепочка ✨', desc: 'Массивная рэперская цепь с золотым медальоном.', cost: 60 },
                 { id: 'detective-hat', name: 'Шляпа детектива 🕵️‍♂️', desc: 'Классическая клетчатая кепка Шерлока Холмса.', cost: 75 },
-                { id: 'crown', name: 'Королевская корона 👑', desc: 'Роскошная золотая корона с драгоценными камнями.', cost: 120 }
+                { id: 'crown', name: 'Королевская корона 👑', desc: 'Роскошная золотая корона с драгоценными камнями.', cost: 120 },
+                { id: 'cheshire-skin', name: 'Скин «Чеширский кот» 😸', desc: 'Загадочный скин: тело исчезает, остаются только светящиеся глаза, носик, усы и загадочная улыбка!', cost: 500 }
             ];
             
             let html = `
